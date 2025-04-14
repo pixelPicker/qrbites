@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon --inspect ./dist/index.js",
+    "debug": "concurrently \"npx tsc --watch\" \"nodemon --inspect ./dist/index.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,6 +17,7 @@
     "express": "^5.1.0",
     "pino": "^9.6.0",
     "pino-http": "^10.4.0",
+    "pino-pretty": "^13.0.0",
     "supertokens-node": "^22.0.1",
     "uuid": "^11.1.0"
   },
