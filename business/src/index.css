@@ -1,34 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@font-face {
-  font-family: "Aeonik-Bold";
-  src: url("../public/fonts/Aeonik-Bold.otf");
-}
-@font-face {
-  font-family: "Aeonik-Regular";
-  src: url("../public/fonts/Aeonik-Regular.otf");
-}
-@font-face {
-  font-family: "Bricolage-Grotesque";
-  src: url("../public/fonts/Montserrat-Regular.ttf");
-}
-
 @custom-variant dark (&:is(.dark *));
-
-@theme {
-  --font-Aeonik-Bold: "Aeonik-Bold";
-  --font-Aeonik-Regular: "Aeonik-Regular";
-  --font-Montserrat-Regular: "Montserrat-Regular";
-  --color-woo-white: #F9FAFB;
-  --color-gray-what: #E5E7EB;
-  --color-light-green: #A1F7D8;
-  --color-the-green: #10B981;
-  --color-navy-blue: #1E3A8A;
-  --color-hmm-black: #000000;
-  --color-veg-green: #008000;
-  --color-non-veg-red: #A52A2A;
-}
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
