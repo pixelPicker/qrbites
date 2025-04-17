@@ -4,6 +4,7 @@ import { FaBars } from "react-icons/fa6";
 import PrimaryButton from "@/components/PrimaryButton";
 import {SecondaryButtonWithSendIcon} from "@/components/SecondaryButton";
 import SpacingDiv from "@/components/SpacingDiv";
+
 export const Route = createFileRoute("/")({
   component: Home,
 });
