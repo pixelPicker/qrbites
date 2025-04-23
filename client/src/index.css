@@ -3,15 +3,15 @@
 
 @font-face {
   font-family: "Aeonik-Bold";
-  src: url("../public/fonts/Aeonik-Bold.otf");
+  src: url("/fonts/Aeonik-Bold.otf");
 }
 @font-face {
   font-family: "Aeonik-Regular";
-  src: url("../public/fonts/Aeonik-Regular.otf");
+  src: url("/fonts/Aeonik-Regular.otf");
 }
 @font-face {
   font-family: "Bricolage-Grotesque";
-  src: url("../public/fonts/Montserrat-Regular.ttf");
+  src: url("/fonts/Montserrat-Regular.ttf");
 }
 
 @custom-variant dark (&:is(.dark *));

@@ -14,7 +14,7 @@ function Home() {
     <div className="flex flex-col justify-between items-center min-h-screen">
       <header className="flex w-full font-Aeonik-Regular justify-between items-center !p-5 !md:m-10">
         <img
-          src="../../public/logo/logo_small.png"
+          src="/logo/logo_small.png"
           className="w-16 aspect-square"
           alt="Qrbites logo"
         />
