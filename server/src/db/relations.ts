@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { restaurant, address, restaurantTable, orders, users, payment, feedback, dish, restaurantStaff, staff, staffPermissions, permissions, orderItems } from "./schema";
+import { restaurant, address, restaurantTable, orders, users, payment, feedback, dish, restaurantStaff, staff, staffPermissions, permissions, orderItems } from "./schema.js";
 
 export const addressRelations = relations(address, ({one}) => ({
 	restaurant: one(restaurant, {

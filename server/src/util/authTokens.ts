@@ -1,22 +1,18 @@
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 
-export const createAccessToken = (id: string) => {
-  const jwtid = uuidv4();
-  return jwt.sign({ id }, process.env.JWT_SECRET!, {
-    expiresIn: "15m",
-    jwtid,
-    issuer: "https://havvon.serveo.net",
-    audience: "https://app.havvon.com",
-  });
-};
+interface tokenPayload {
+  id: string;
+  audience: "business" | "client";
+  type: "access" | "refresh";
+}
 
-export const createRefreshToken = (id: string) => {
+export const createJwtToken = ({ id, audience, type }: tokenPayload) => {
   const jwtid = uuidv4();
   return jwt.sign({ id }, process.env.JWT_SECRET!, {
-    expiresIn: "90 days",
+    expiresIn: type === "access" ? "15m" : "90 days",
     jwtid,
-    issuer: "https://havvon.serveo.net",
-    audience: "https://app.havvon.com",
+    issuer: "qrbites",
+    audience: audience,
   });
 };
