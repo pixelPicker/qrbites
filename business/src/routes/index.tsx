@@ -1,9 +1,10 @@
 import { PiForkKnife } from "react-icons/pi";
-import PrimaryButton from "@/components/PrimaryButton";
-import Logo from "../components/logo";
+import PrimaryButton from "@/components/custom/PrimaryButton";
+import Logo from "../components/custom/logo";
 import { createFileRoute } from "@tanstack/react-router";
-import { SecondaryButton } from "@/components/SecondaryButton";
-import SpacingDiv from "@/components/SpacingDiv";
+import { SecondaryButton } from "@/components/custom/SecondaryButton";
+import SpacingDiv from "@/components/custom/SpacingDiv";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -24,8 +25,8 @@ function Header() {
   return (
     <div>
       <header className="flex fixed top-0 left-0 justify-between items-center font-Aeonik-Regular !p-5  md:!px-16 w-full">
-        <Logo size="medium"/>
-        <SpacingDiv height="w-28" />
+        <Logo size="medium" />
+        <SpacingDiv measure="w-28" />
         <nav>
           <ul className="flex gap-4">
             <li className="!py-1 !px-3 hover:bg-the-green hover:text-woo-white transition-all duration-200 rounded-full">

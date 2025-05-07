@@ -52,11 +52,11 @@ export const clientEmailResend = async (req: Request, res: Response) => {
     return;
   }
 
-  const verificationToken = createJwtToken({
-    id: requestAborted[0].id,
-    audience: "client",
-    type: "access",
-  });
+  const verificationToken = createJwtToken(
+    requestAborted[0].id,
+    "client",
+    "access"
+  );
 
   const [userUpdateError, updatedUser] = await catchDrizzzzzleError(
     db
@@ -123,11 +123,11 @@ export const businessEmailResend = async (req: Request, res: Response) => {
     return;
   }
 
-  const verificationToken = createJwtToken({
-    id: requestAborted[0].id,
-    audience: "business",
-    type: "access",
-  });
+  const verificationToken = createJwtToken(
+     requestAborted[0].id,
+     "business",
+     "access",
+  );
 
   const [userUpdateError, updatedUser] = await catchDrizzzzzleError(
     db

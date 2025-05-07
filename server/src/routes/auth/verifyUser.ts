@@ -1,49 +1,34 @@
-// import express, { Request, Response } from "express";
-// import { authenticateRefreshToken } from "../../middleware/authenticateRefreshToken.js";
-// import { authenticateAccessToken } from "../../middleware/authenticateAccessToken.js";
-// import { createJwtToken } from "../../util/authTokens.js";
-// import { createClientUser } from "../../util/createClient.js";
+import express, { Request, Response } from "express";
+import { authenticateRefreshToken } from "../../middleware/auth/authenticateRefreshToken.js";
+import { authenticateAccessToken } from "../../middleware/auth/authenticateAccessToken.js";
+import { createJwtToken } from "../../util/authTokens.js";
+import { createClientUser } from "../../util/createClient.js";
+import { JwtPayload } from "jsonwebtoken";
+import { catchDrizzzzzleError } from "../../util/catchError.js";
+import { db } from "../../config/db.js";
+import { users } from "../../db/schema.js";
+import { eq } from "drizzle-orm";
+import { hasDrizzzzzleError } from "../../util/checkError.js";
+import { setAuthCookies } from "../../util/setResponseCookies.js";
+import {
+  clientVerification,
+  staffVerification,
+} from "../../controllers/auth/verify/verification.js";
 
-// const router = express.Router();
+const router = express.Router();
 
-// router.get(
-//   "/auth/verify",
-//   authenticateAccessToken,
-//   authenticateRefreshToken,
-//   async (req: Request, res: Response) => {
-//     const userId = res.locals.userId;
+router
+  .get(
+    "/client/auth/verify",
+    authenticateAccessToken,
+    authenticateRefreshToken,
+    clientVerification
+  )
+  .get(
+    "/business/auth/verify",
+    authenticateAccessToken,
+    authenticateRefreshToken,
+    staffVerification
+  );
 
-//     const user: HydratedDocument<User> | null = await User.findById(userId);
-
-//     if (!user) {
-//       res.status(401).json({ message: "Invalid token. Cannot get user" });
-//       return;
-//     }
-
-//     if (res.locals.renewAccessToken === true) {
-//       const accessToken = createJwtToken({id: });
-//       res.cookie("access-token", accessToken, {
-//         httpOnly: true,
-//         sameSite: "strict",
-//         maxAge: 15 * 60 * 1000,
-//         secure: process.env.NODE_ENV === "production",
-//       });
-//     }
-
-//     if (res.locals.renewRefreshToken === true) {
-//       const accessToken = createRefreshToken(user.id);
-//       res.cookie("access-token", accessToken, {
-//         httpOnly: true,
-//         sameSite: "strict",
-//         maxAge: 90 * 24 * 60 * 60 * 1000,
-//         secure: process.env.NODE_ENV === "production",
-//       });
-//     }
-
-//     const clientUser = createClientUser(user);
-//     res.status(200).json({ user: clientUser });
-//     return;
-//   }
-// );
-
-// export default router;
+export default router;

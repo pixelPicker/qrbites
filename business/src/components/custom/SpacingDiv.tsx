@@ -1,5 +1,6 @@
 interface SpacingDivProps {
   measure:
+    | "h-1"
     | "h-2"
     | "h-4"
     | "h-8"
@@ -7,6 +8,7 @@ interface SpacingDivProps {
     | "h-16"
     | "h-28"
     | "h-32"
+    | "w-1"
     | "w-2"
     | "w-4"
     | "w-8"

@@ -13,8 +13,12 @@ import {
 } from "../../../db/schema.js";
 import { catchDrizzzzzleError, catchError } from "../../../util/catchError.js";
 import logger from "../../../config/logger.js";
-import { createClientStaff, createClientUser } from "../../../util/createClient.js";
+import {
+  createClientStaff,
+  createClientUser,
+} from "../../../util/createClient.js";
 import { transport } from "../../../config/nodemailer.js";
+import { setAuthCookies } from "../../../util/setResponseCookies.js";
 
 interface staffPermissionObj {
   permission: string;
@@ -30,7 +34,11 @@ const schema = z.object({
   email: z.string().email("The email format is invalid"),
 });
 
-export const emailTemplate = (verificationToken: string, email: string, party: "client" | "business") => {
+export const emailTemplate = (
+  verificationToken: string,
+  email: string,
+  party: "client" | "business"
+) => {
   return `
       <div style="width: 100%;background-color: mediumseagreen;color: black;padding: 50px 25px;display: flex; justify-content: center;">
         <div style="display: grid;place-items: center;gap: 10px;width: 100%;">
@@ -102,11 +110,7 @@ export const clientMagicLinkSignup: RequestHandler = async (
 
   const userId = uuidv4();
 
-  const verificationToken = createJwtToken({
-    id: userId,
-    audience: "client",
-    type: "access",
-  });
+  const verificationToken = createJwtToken(userId, "client", "access");
 
   const [postgresError, user] = await catchDrizzzzzleError(
     db
@@ -145,8 +149,14 @@ export const clientMagicLinkSignup: RequestHandler = async (
     )
   );
 
-  if(emailSendError || !mailId) {
-    res.status(500).json((emailSendError) ? emailSendError.message : "Server error. Couldn't send an email. Please try again");
+  if (emailSendError || !mailId) {
+    res
+      .status(500)
+      .json(
+        emailSendError
+          ? emailSendError.message
+          : "Server error. Couldn't send an email. Please try again"
+      );
     return;
   }
   logger.info(`mail sent with id: ${mailId}`);
@@ -189,29 +199,10 @@ export const clientMagicLinkSignupCallback: RequestHandler = async (
     return;
   }
 
-  const accessToken = createJwtToken({
-    id: user[0].id,
-    audience: "client",
-    type: "access",
-  });
-  const refreshToken = createJwtToken({
-    id: user[0].id,
-    audience: "client",
-    type: "refresh",
-  });
+  const accessToken = createJwtToken(user[0].id, "client", "access");
+  const refreshToken = createJwtToken(user[0].id, "client", "refresh");
 
-  res.cookie("access-token", accessToken, {
-    expires: new Date(Date.now() + 15 * 60 * 1000),
-    httpOnly: true,
-    sameSite: "none",
-    secure: true,
-  });
-  res.cookie("refresh-token", refreshToken, {
-    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    httpOnly: true,
-    sameSite: "none",
-    secure: true,
-  });
+  setAuthCookies(accessToken, refreshToken, res);
 
   const clientUser = createClientUser({
     id: user[0].id,
@@ -273,11 +264,7 @@ export const businessMagicLinkSignup = async (req: Request, res: Response) => {
 
   const staffId = uuidv4();
 
-  const verificationToken = createJwtToken({
-    id: staffId,
-    audience: "business",
-    type: "access",
-  });
+  const verificationToken = createJwtToken(staffId, "business", "access");
 
   const [postgresError, user] = await catchDrizzzzzleError(
     db
@@ -317,8 +304,14 @@ export const businessMagicLinkSignup = async (req: Request, res: Response) => {
     )
   );
 
-  if(emailSendError || !mailId) {
-    res.status(500).json((emailSendError) ? emailSendError.message : "Server error. Couldn't send an email. Please try again");
+  if (emailSendError || !mailId) {
+    res
+      .status(500)
+      .json(
+        emailSendError
+          ? emailSendError.message
+          : "Server error. Couldn't send an email. Please try again"
+      );
     return;
   }
   logger.info(`mail sent with id: ${mailId}`);
@@ -400,28 +393,18 @@ export const businessMagicLinkSignupCallback: RequestHandler = async (
     return;
   }
 
-  const accessToken = createJwtToken({
-    id: user[0].id,
-    audience: "business",
-    type: "access",
-  });
-  const refreshToken = createJwtToken({
-    id: user[0].id,
-    audience: "business",
-    type: "refresh",
-  });
-  res.cookie("access-token", accessToken, {
-    expires: new Date(Date.now() + 15 * 60 * 1000),
-    httpOnly: true,
-    sameSite: "none",
-    secure: true,
-  });
-  res.cookie("refresh-token", refreshToken, {
-    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    httpOnly: true,
-    sameSite: "none",
-    secure: true,
-  });
+  const accessToken = createJwtToken(
+  user[0].id,
+  "business",
+  "access",
+  );
+  const refreshToken = createJwtToken(
+  user[0].id,
+  "business",
+  "refresh",
+  );
+
+  setAuthCookies(accessToken, refreshToken, res);
 
   const clientStaff = createClientStaff({
     id: user[0].id,

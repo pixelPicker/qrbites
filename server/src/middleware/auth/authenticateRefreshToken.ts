@@ -1,41 +1,30 @@
 import { Request, Response, NextFunction } from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
-
+import jwt, { JwtPayload, VerifyErrors } from "jsonwebtoken";
+import { checkRefreshTokenHalfLife } from "../../util/authTokens.js";
 
 export const authenticateRefreshToken = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  if (res.locals.userId) {
+  if (res.locals.decoded) {
     next();
     return;
   }
   const refreshToken = req.cookies["refresh-token"];
-  try {
-    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET!);
-    if (typeof decoded !== "string") {
-      const userId = (decoded as JwtPayload).id;
-      res.locals.userId = userId;
-      res.locals.renewAccessToken = true;
 
-      if (decoded.iat !== undefined && decoded.exp !== undefined) {
-        const currentTime = Math.floor(Date.now() / 1000);
-        const halfwayTime = decoded.iat + (decoded.exp - decoded.iat) / 2;
-        const isHalfwayThroughExpiry = currentTime >= halfwayTime;
-
-        if (isHalfwayThroughExpiry) {
-          res.locals.renewRefreshToken;
-        }
+  jwt.verify(
+    refreshToken,
+    process.env.JWT_SECRET!,
+    (err: VerifyErrors | null, decoded: JwtPayload | string | undefined) => {
+      if (err || !decoded || typeof decoded === "string") {
+        return res.status(400).json({ error: "Failed to authenticate user" });
       }
+      res.locals.decoded = decoded;
+      res.locals.renewAccessToken = true;
+      res.locals.renewRefreshToken = checkRefreshTokenHalfLife(decoded);
+
       next();
-      return;
-    } else {
-      console.log("SOME MOFO USED STRING FOR TOKEN");
-      throw new Error("Great day");
     }
-  } catch (error) {
-    res.status(401).json({ message: "Failed to Authenticate user" });
-    return;
-  }
+  );
 };

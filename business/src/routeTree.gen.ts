@@ -11,15 +11,31 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as DashboardImport } from './routes/dashboard'
 import { Route as IndexImport } from './routes/index'
+import { Route as RestaurantCreateImport } from './routes/restaurant/create'
 import { Route as AuthRegisterImport } from './routes/auth/register'
 import { Route as AuthLoginImport } from './routes/auth/login'
+import { Route as AuthConfirmPageImport } from './routes/auth/confirm-page'
+import { Route as AuthVerifyEmailEmailImport } from './routes/auth/verify-email.$email'
 
 // Create/Update Routes
+
+const DashboardRoute = DashboardImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const RestaurantCreateRoute = RestaurantCreateImport.update({
+  id: '/restaurant/create',
+  path: '/restaurant/create',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -35,6 +51,18 @@ const AuthLoginRoute = AuthLoginImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AuthConfirmPageRoute = AuthConfirmPageImport.update({
+  id: '/auth/confirm-page',
+  path: '/auth/confirm-page',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthVerifyEmailEmailRoute = AuthVerifyEmailEmailImport.update({
+  id: '/auth/verify-email/$email',
+  path: '/auth/verify-email/$email',
+  getParentRoute: () => rootRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -44,6 +72,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardImport
+      parentRoute: typeof rootRoute
+    }
+    '/auth/confirm-page': {
+      id: '/auth/confirm-page'
+      path: '/auth/confirm-page'
+      fullPath: '/auth/confirm-page'
+      preLoaderRoute: typeof AuthConfirmPageImport
       parentRoute: typeof rootRoute
     }
     '/auth/login': {
@@ -60,6 +102,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRegisterImport
       parentRoute: typeof rootRoute
     }
+    '/restaurant/create': {
+      id: '/restaurant/create'
+      path: '/restaurant/create'
+      fullPath: '/restaurant/create'
+      preLoaderRoute: typeof RestaurantCreateImport
+      parentRoute: typeof rootRoute
+    }
+    '/auth/verify-email/$email': {
+      id: '/auth/verify-email/$email'
+      path: '/auth/verify-email/$email'
+      fullPath: '/auth/verify-email/$email'
+      preLoaderRoute: typeof AuthVerifyEmailEmailImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -67,42 +123,84 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/auth/confirm-page': typeof AuthConfirmPageRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/restaurant/create': typeof RestaurantCreateRoute
+  '/auth/verify-email/$email': typeof AuthVerifyEmailEmailRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/auth/confirm-page': typeof AuthConfirmPageRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/restaurant/create': typeof RestaurantCreateRoute
+  '/auth/verify-email/$email': typeof AuthVerifyEmailEmailRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/auth/confirm-page': typeof AuthConfirmPageRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/restaurant/create': typeof RestaurantCreateRoute
+  '/auth/verify-email/$email': typeof AuthVerifyEmailEmailRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth/login' | '/auth/register'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/auth/confirm-page'
+    | '/auth/login'
+    | '/auth/register'
+    | '/restaurant/create'
+    | '/auth/verify-email/$email'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth/login' | '/auth/register'
-  id: '__root__' | '/' | '/auth/login' | '/auth/register'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/auth/confirm-page'
+    | '/auth/login'
+    | '/auth/register'
+    | '/restaurant/create'
+    | '/auth/verify-email/$email'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/auth/confirm-page'
+    | '/auth/login'
+    | '/auth/register'
+    | '/restaurant/create'
+    | '/auth/verify-email/$email'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
+  AuthConfirmPageRoute: typeof AuthConfirmPageRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
+  RestaurantCreateRoute: typeof RestaurantCreateRoute
+  AuthVerifyEmailEmailRoute: typeof AuthVerifyEmailEmailRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
+  AuthConfirmPageRoute: AuthConfirmPageRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
+  RestaurantCreateRoute: RestaurantCreateRoute,
+  AuthVerifyEmailEmailRoute: AuthVerifyEmailEmailRoute,
 }
 
 export const routeTree = rootRoute
@@ -116,18 +214,34 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/dashboard",
+        "/auth/confirm-page",
         "/auth/login",
-        "/auth/register"
+        "/auth/register",
+        "/restaurant/create",
+        "/auth/verify-email/$email"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/dashboard": {
+      "filePath": "dashboard.tsx"
+    },
+    "/auth/confirm-page": {
+      "filePath": "auth/confirm-page.tsx"
     },
     "/auth/login": {
       "filePath": "auth/login.tsx"
     },
     "/auth/register": {
       "filePath": "auth/register.tsx"
+    },
+    "/restaurant/create": {
+      "filePath": "restaurant/create.tsx"
+    },
+    "/auth/verify-email/$email": {
+      "filePath": "auth/verify-email.$email.tsx"
     }
   }
 }

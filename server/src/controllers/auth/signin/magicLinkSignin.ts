@@ -53,11 +53,11 @@ export const clientMagicLinkSignin = async (req: Request, res: Response) => {
     });
   }
 
-  const verificationToken = createJwtToken({
-    id: existingUser[0].id,
-    audience: "client",
-    type: "access",
-  });
+  const verificationToken = createJwtToken(
+  existingUser[0].id,
+  "client",
+  "access",
+  );
 
   const [userUpdateError, user] = await catchDrizzzzzleError(
     db
@@ -140,11 +140,11 @@ export const businessMagicLinkSignin = async (req: Request, res: Response) => {
     });
   }
 
-  const verificationToken = createJwtToken({
-    id: existingUser[0].id,
-    audience: "business",
-    type: "access",
-  });
+  const verificationToken = createJwtToken(
+  existingUser[0].id,
+  "business",
+  "access",
+  );
 
   const [userUpdateError, user] = await catchDrizzzzzleError(
     db

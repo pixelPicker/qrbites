@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
+import { access } from "fs";
 import jwt, { JwtPayload, VerifyErrors } from "jsonwebtoken";
-
 
 export const authenticateAccessToken = (
   req: Request,
@@ -19,24 +19,15 @@ export const authenticateAccessToken = (
     return;
   }
 
-  try {
-    const decoded = jwt.verify(accessToken, process.env.JWT_SECRET!);
-    if (typeof decoded !== "string") {
-      const userId = (decoded as JwtPayload).id;
-      res.locals.userId = userId;
+  jwt.verify(
+    accessToken,
+    process.env.JWT_SECRET!,
+    (err: VerifyErrors | null, decoded: JwtPayload | string | undefined) => {
+      if (err || !decoded || typeof decoded === "string") {
+        return res.status(400).json({ error: "Failed to authenticate user" });
+      }
+      res.locals.decoded = decoded;
       next();
-      return;
-    } else {
-      console.log("SOME MOFO USED STRING FOR TOKEN");
-      throw new Error("Great day");
     }
-  } catch (error) {
-    const err = error as VerifyErrors;
-    if (err.name === "TokenExpiredError") {
-      next();
-      return;
-    }
-    res.status(401).json({ message: "Failed to Authenticate user" });
-    return;
-  }
+  );
 };

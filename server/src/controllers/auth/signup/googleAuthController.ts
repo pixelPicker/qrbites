@@ -1,7 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import passport from "passport";
 import { createJwtToken } from "../../../util/authTokens.js";
-import { createClientStaff, createClientUser } from "../../../util/createClient.js";
+import {
+  createClientStaff,
+  createClientUser,
+} from "../../../util/createClient.js";
+import { setAuthCookies } from "../../../util/setResponseCookies.js";
 
 export const clientGoogleSignin = (req: Request, res: Response) => {
   const user = req.user as User;
@@ -9,28 +13,9 @@ export const clientGoogleSignin = (req: Request, res: Response) => {
     res.status(401).json({ error: "Authentication failed. Please try again" });
     return;
   }
-  const accessToken = createJwtToken({
-    id: user.id,
-    audience: "business",
-    type: "access",
-  });
-  const refreshToken = createJwtToken({
-    id: user.id,
-    audience: "business",
-    type: "refresh",
-  });
-  res.cookie("access-token", accessToken, {
-    expires: new Date(Date.now() + 15 * 60 * 1000),
-    httpOnly: true,
-    sameSite: "none",
-    secure: true,
-  });
-  res.cookie("refresh-token", refreshToken, {
-    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    httpOnly: true,
-    sameSite: "none",
-    secure: true,
-  });
+  const accessToken = createJwtToken(user.id, "business", "access");
+  const refreshToken = createJwtToken(user.id, "business", "refresh");
+  setAuthCookies(accessToken, refreshToken, res);
 
   const clientUser = createClientUser({
     id: user.id,
@@ -49,28 +34,10 @@ export const businessGoogleSignin = (req: Request, res: Response) => {
     res.status(401).json({ error: "Authentication failed. Please try again" });
     return;
   }
-  const accessToken = createJwtToken({
-    id: staff.id,
-    audience: "business",
-    type: "access",
-  });
-  const refreshToken = createJwtToken({
-    id: staff.id,
-    audience: "business",
-    type: "refresh",
-  });
-  res.cookie("access-token", accessToken, {
-    expires: new Date(Date.now() + 15 * 60 * 1000),
-    httpOnly: true,
-    sameSite: "none",
-    secure: true,
-  });
-  res.cookie("refresh-token", refreshToken, {
-    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    httpOnly: true,
-    sameSite: "none",
-    secure: true,
-  });
+  const accessToken = createJwtToken(staff.id, "business", "access");
+  const refreshToken = createJwtToken(staff.id, "business", "refresh");
+
+  setAuthCookies(accessToken, refreshToken, res);
 
   const clientStaff = createClientStaff({
     id: staff.id,

@@ -13,19 +13,19 @@ const router = express.Router();
 
 router
   .post("/client/signin/magic-link", clientMagicLinkSignin)
-  .get("/client/signin/magic-link/callback", verifyMagicToken, clientMagicLinkSignupCallback)
+  .post("/client/signin/magic-link/callback", verifyMagicToken, clientMagicLinkSignupCallback)
 
   .post("/client/signup/magic-link", clientMagicLinkSignup)
-  .get("/client/signup/magic-link/callback", verifyMagicToken, clientMagicLinkSignupCallback)
+  .post("/client/signup/magic-link/callback", verifyMagicToken, clientMagicLinkSignupCallback)
   
-  .get("client/auth/resend-email", clientEmailResend)
+  .post("client/auth/resend-email", clientEmailResend)
   
   .post("/business/signin/magic-link", businessMagicLinkSignin)
-  .get("/business/signin/magic-link/callback", verifyMagicToken, businessMagicLinkSignupCallback)
+  .post("/business/signin/magic-link/callback", verifyMagicToken, businessMagicLinkSignupCallback)
 
   .post("/business/signup/magic-link", businessMagicLinkSignup)
-  .get("/business/signup/magic-link/callback", verifyMagicToken, businessMagicLinkSignupCallback)
+  .post("/business/signup/magic-link/callback", verifyMagicToken, businessMagicLinkSignupCallback)
   
-  .get("business/auth/resend-email", businessEmailResend)
+  .post("business/auth/resend-email", businessEmailResend)
 
 export default router;

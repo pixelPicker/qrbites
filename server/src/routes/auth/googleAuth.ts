@@ -1,8 +1,5 @@
-import jwt from "jsonwebtoken";
-import express, { Request, Response } from "express";
+import express from "express";
 import passport from "passport";
-import { createJwtToken } from "../../util/authTokens.js";
-import { QueryResult } from "pg";
 import { businessGoogleAuthMiddleware, clientGoogleAuthMiddleware } from "../../middleware/auth/passportGoogle.js";
 import { businessGoogleSignin, clientGoogleSignin } from "../../controllers/auth/signup/googleAuthController.js";
 
