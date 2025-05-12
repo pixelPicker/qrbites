@@ -7,7 +7,7 @@ import { db } from "../../../config/db.js";
 import { staff, users } from "../../../db/schema.js";
 import { hasDrizzzzzleError } from "../../../util/checkError.js";
 import { eq } from "drizzle-orm";
-import { createClientUser } from "../../../util/createClient.js";
+import { createClientStaff, createClientUser } from "../../../util/createClient.js";
 
 export const clientVerification = async (req: Request, res: Response) => {
   const decoded = res.locals.decoded as JwtPayload;
@@ -100,7 +100,7 @@ export const staffVerification = async (req: Request, res: Response) => {
     setAuthCookies(null, refreshToken, res);
   }
 
-  const clientUser = createClientUser(fetchedUser[0]);
+  const clientUser = createClientStaff(fetchedUser[0]);
   res.status(200).json({ user: clientUser });
   return;
 }

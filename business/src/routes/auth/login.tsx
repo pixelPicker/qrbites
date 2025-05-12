@@ -7,12 +7,9 @@ import { IoQrCodeOutline } from "react-icons/io5";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import React, { useEffect, useRef, useState } from "react";
 import SpacingDiv from "@/components/custom/SpacingDiv";
-import { useAuthStoreContext } from "@/store/authContext";
-import {
-  signupQueryMagicLink,
-  signupQueryGoogle,
-} from "@/api/mutations/signupMutation";
+import { signupGoogle } from "@/api/mutations/signupMutation";
 import { Toaster } from "sonner";
+import { signinMagicLink } from "@/api/mutations/signinMutation";
 
 type ChildProps = {
   handleIsFetching: (isFetching: boolean) => void;
@@ -80,7 +77,6 @@ function RegisterComponent() {
             <SpinningCircles speed={0.7} />
           </div>
         )}
-
       </div>
     </div>
   );
@@ -90,13 +86,9 @@ function Form({ handleIsFetching }: ChildProps) {
   const emailInputRef = useRef<HTMLInputElement>(null);
   const signupButtonRef = useRef<HTMLButtonElement>(null);
   const [emailError, setEmailError] = useState("");
-  const setUser = useAuthStoreContext((state) => state.setUser);
   const navigate = useNavigate();
-  const mutation = signupQueryMagicLink(
-    emailInputRef,
-    setUser,
-    navigate
-  );
+  // * Replace with signin function
+  const mutation = signinMagicLink(emailInputRef, navigate);
 
   useEffect(() => {
     handleIsFetching(mutation.isPending);
@@ -106,8 +98,7 @@ function Form({ handleIsFetching }: ChildProps) {
     if (emailError === "") {
       return;
     }
-    const timeout =
-        setTimeout(() => setEmailError(""), 2000);
+    const timeout = setTimeout(() => setEmailError(""), 2000);
 
     return () => {
       clearTimeout(timeout);
@@ -115,10 +106,7 @@ function Form({ handleIsFetching }: ChildProps) {
   }, [emailError]);
 
   const checkValidity = (): boolean => {
-    if (
-      emailInputRef.current === null ||
-      signupButtonRef.current === null
-    ) {
+    if (emailInputRef.current === null || signupButtonRef.current === null) {
       console.error("Atleast one of the refs is null");
       return false;
     }
@@ -144,12 +132,10 @@ function Form({ handleIsFetching }: ChildProps) {
       return;
     }
 
-    navigate({ to: "/auth/verifyEmail", search: { email: "", token: "" } });
-    // ! enable this when complete
-    // signupButtonRef.current!.disabled = true;
-    // mutation.mutate();
+    signupButtonRef.current!.disabled = true;
+    mutation.mutate();
 
-    // signupButtonRef.current!.disabled = false;
+    signupButtonRef.current!.disabled = false;
   };
 
   return (
@@ -190,9 +176,8 @@ function Form({ handleIsFetching }: ChildProps) {
 }
 
 function GoogleLoginButton({ handleIsFetching }: ChildProps) {
-  const setUser = useAuthStoreContext((state) => state.setUser);
   const navigate = useNavigate();
-  const mutation = signupQueryGoogle(setUser, navigate);
+  const mutation = signupGoogle(navigate);
 
   const handleLoginButtonClick = () => {
     console.log(123);

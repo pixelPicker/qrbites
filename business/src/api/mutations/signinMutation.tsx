@@ -1,19 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
 import { UseNavigateResult } from "@tanstack/react-router";
+import React from "react";
 import { toast } from "sonner";
 
-export const signupMagicLink = (
+export const signinMagicLink = (
   emailInputRef: React.RefObject<HTMLInputElement | null>,
-  usernameInputRef: React.RefObject<HTMLInputElement | null>,
   navigate: UseNavigateResult<string>
 ) => {
   return useMutation({
-    mutationKey: ["auth", "signup", "magic-link"],
-    mutationFn: () =>
-      signupMagicLinkFn(
-        emailInputRef.current!.value,
-        usernameInputRef.current!.value
-      ),
+    mutationKey: ["auth", "signin", "magic-link"],
+    mutationFn: () => signinMagicLinkFn(emailInputRef.current!.value),
     onError: (error) => {
       toast(error.message, { className: "!bg-non-veg-red !text-woo-white" });
     },
@@ -26,35 +22,31 @@ export const signupMagicLink = (
   });
 };
 
-async function signupMagicLinkFn(email: string, username: string) {
-  const res = await fetch(
-    "http://localhost:3000/business/auth/signup/magic-link",
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      method: "POST",
-      credentials: "include",
-      body: JSON.stringify({
-        email,
-        username,
-      }),
-    }
-  );
-  if(!res.ok) {
-    throw new Error("Process failed. Please try again")
+async function signinMagicLinkFn(email: string) {
+  const res = await fetch("http://localhost:3000/business/auth/signin/magic-link", {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    method: "POST",
+    credentials: "include",
+    body: JSON.stringify({
+      email,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error("Process failed. Please try again");
   }
   return await res.json();
 }
 
-export const signupGoogle = (
+export const signinGoogle = (
   navigate: UseNavigateResult<string>
 ) => {
   return useMutation({
     
-    mutationFn: signupGoogleFn,
-    mutationKey: ["auth", "signup", "google"],
+    mutationFn: signinGoogleFn,
+    mutationKey: ["auth", "signin", "google"],
     onError: (error) => {
       toast(error.message, { className: "!bg-non-veg-red !text-woo-white" });
     },
@@ -66,6 +58,6 @@ export const signupGoogle = (
   });
 };
 
-async function signupGoogleFn() {
+async function signinGoogleFn() {
   window.location.href = "http://localhost:3000/business/auth/google";
 }

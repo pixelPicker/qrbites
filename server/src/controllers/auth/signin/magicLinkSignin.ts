@@ -6,8 +6,8 @@ import { eq } from "drizzle-orm";
 import { db } from "../../../config/db.js";
 import { hasDrizzzzzleError } from "../../../util/checkError.js";
 import { createJwtToken } from "../../../util/authTokens.js";
-import { emailTemplate, sendMail } from "../signup/magicLinkSignup.js";
 import logger from "../../../config/logger.js";
+import { addEmailToQueue } from "../../../queue/email/email.queue.js";
 
 const schema = z.object({
   email: z.string().email(),
@@ -78,24 +78,11 @@ export const clientMagicLinkSignin = async (req: Request, res: Response) => {
     return;
   }
 
-  const [emailSendError, mailId] = await catchError(
-    sendMail(
-      updatedUserResult[0].email,
-      emailTemplate(verificationToken, updatedUserResult[0].email, "client")
-    )
-  );
-
-  if (emailSendError || !mailId) {
-    res
-      .status(500)
-      .json(
-        emailSendError
-          ? emailSendError.message
-          : "Server error. Couldn't send an email. Please try again"
-      );
-    return;
-  }
-  logger.info(`mail sent with id: ${mailId}`);
+  addEmailToQueue({
+      email: updatedUserResult[0].email,
+      party: "client",
+      verificationToken: verificationToken,
+    });
 
   res.status(201).json({ message: "Verification email has been sent" });
 };
@@ -165,24 +152,11 @@ export const businessMagicLinkSignin = async (req: Request, res: Response) => {
     return;
   }
 
-  const [emailSendError, mailId] = await catchError(
-    sendMail(
-      updatedUserResult[0].email,
-      emailTemplate(verificationToken, updatedUserResult[0].email, "business")
-    )
-  );
-
-  if (emailSendError || !mailId) {
-    res
-      .status(500)
-      .json(
-        emailSendError
-          ? emailSendError.message
-          : "Server error. Couldn't send an email. Please try again"
-      );
-    return;
-  }
-  logger.info(`mail sent with id: ${mailId}`);
+  addEmailToQueue({
+    email: updatedUserResult[0].email,
+    party: "business",
+    verificationToken: verificationToken,
+  });
 
   res.status(201).json({ message: "Verification email has been sent" });
 };

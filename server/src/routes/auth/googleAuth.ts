@@ -6,13 +6,13 @@ import { businessGoogleSignin, clientGoogleSignin } from "../../controllers/auth
 const router = express.Router();
 
 router
-  .post(
+  .get(
     "/client/auth/google",
     passport.authenticate("client-strategy", {
       scope: ["profile", "email"],
     })
   )
-  .post(
+  .get(
     "/business/auth/google",
     passport.authenticate("business-strategy", {
       scope: ["profile", "email"],

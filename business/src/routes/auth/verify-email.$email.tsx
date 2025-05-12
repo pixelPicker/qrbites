@@ -1,22 +1,13 @@
 import { MdMarkEmailRead } from "react-icons/md";
-import { emailResendMutation } from "@/api/mutations/resendMutation";
+import { emailResendMutation } from "@/api/mutations/emailResend";
 import { useAuthStoreContext } from "@/store/authContext";
-import { QueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { SpinningCircles } from "react-loading-icons";
 import { Toaster } from "sonner";
 import SpacingDiv from "@/components/custom/SpacingDiv";
 
-interface RouteLoaderContext {
-  queryClient: QueryClient;
-}
-
 export const Route = createFileRoute("/auth/verify-email/$email")({
-  loader: ({ context, params }) => {
-    const { queryClient } = context as RouteLoaderContext;
-    const email = params.email;
-  },
   component: RouteComponent,
 });
 
@@ -42,7 +33,7 @@ function RouteComponent() {
   }, [resendTime]);
 
   if (user) {
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/" });
     return;
   }
 
@@ -55,7 +46,7 @@ function RouteComponent() {
   }, [resendMutation.isPending]);
 
   const handleEmailResend = () => {
-    
+    resendMutation.mutate();
   }
 
   return (
@@ -87,7 +78,7 @@ function RouteComponent() {
               >
                 Resend Email
               </button>
-              &nbsp;in {resendTime} seconds.
+              &nbsp;{(resendTime > 0) ? `in ${resendTime} seconds.` : ``}
             </span>
           </section>
         </div>

@@ -12,6 +12,16 @@ interface clientStaff {
   role: "staff" | "admin" | "manager";
   alias: string | null;
 }
+interface clientRestaurant {
+  id: string;
+  serialNo: number;
+  name: string;
+  email: string;
+  phoneNumber: string[] | null;
+  logoUrl: string | null;
+  openingTime: string | null;
+  closingTime: string | null;
+}
 
 export const createClientStaff = ({
   id,
@@ -31,12 +41,6 @@ export const createClientStaff = ({
   };
 };
 
-//     password: string | null;
-//     provider: "magic_link" | "google";
-//     createdAt: string;
-//     updatedAt: string;
-//     emailVerificationToken: string | null;
-//     isVerified: boolean | null;
 export const createClientUser = ({
   id,
   username,
@@ -50,3 +54,25 @@ export const createClientUser = ({
     profilePic,
   };
 };
+
+export const createClientRestaurant = ({
+  id,
+  serialNo,
+  name,
+  email,
+  phoneNumber,
+  logoUrl,
+  openingTime,
+  closingTime,
+}: clientRestaurant): clientRestaurant => {
+  return {
+    id,
+    serialNo,
+    name,
+    email,
+    phoneNumber,
+    logoUrl,
+    openingTime,
+    closingTime,
+  }
+}

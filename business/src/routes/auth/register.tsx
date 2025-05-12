@@ -9,8 +9,8 @@ import React, { useEffect, useRef, useState } from "react";
 import SpacingDiv from "@/components/custom/SpacingDiv";
 import { useAuthStoreContext } from "@/store/authContext";
 import {
-  signupQueryMagicLink,
-  signupQueryGoogle,
+  signupMagicLink,
+  signupGoogle,
 } from "@/api/mutations/signupMutation";
 import { Toaster } from "sonner";
 
@@ -94,7 +94,7 @@ function Form({ handleIsFetching }: ChildProps) {
   const [emailError, setEmailError] = useState("");
   const setUser = useAuthStoreContext((state) => state.setUser);
   const navigate = useNavigate();
-  const mutation = signupQueryMagicLink(
+  const mutation = signupMagicLink(
     emailInputRef,
     usernameInputRef,
     setUser,
@@ -156,12 +156,10 @@ function Form({ handleIsFetching }: ChildProps) {
       return;
     }
 
-    navigate({ to: "/auth/verify-email/$email", params: {email: emailInputRef.current!.value} });
-    // ! enable this when complete
-    // signupButtonRef.current!.disabled = true;
-    // mutation.mutate();
+    signupButtonRef.current!.disabled = true;
+    mutation.mutate();
 
-    // signupButtonRef.current!.disabled = false;
+    signupButtonRef.current!.disabled = false;
   };
 
   return (
@@ -216,9 +214,8 @@ function Form({ handleIsFetching }: ChildProps) {
 }
 
 function GoogleLoginButton({ handleIsFetching }: ChildProps) {
-  const setUser = useAuthStoreContext((state) => state.setUser);
   const navigate = useNavigate();
-  const mutation = signupQueryGoogle(setUser, navigate);
+  const mutation = signupGoogle(navigate);
 
   const handleLoginButtonClick = () => {
     console.log(123);

@@ -11,7 +11,7 @@ import {
   staffPermissions,
   users,
 } from "../../../db/schema.js";
-import { catchDrizzzzzleError, catchError } from "../../../util/catchError.js";
+import { catchDrizzzzzleError } from "../../../util/catchError.js";
 import logger from "../../../config/logger.js";
 import {
   createClientStaff,
@@ -19,6 +19,7 @@ import {
 } from "../../../util/createClient.js";
 import { transport } from "../../../config/nodemailer.js";
 import { setAuthCookies } from "../../../util/setResponseCookies.js";
+import { addEmailToQueue } from "../../../queue/email/email.queue.js";
 
 interface staffPermissionObj {
   permission: string;
@@ -33,32 +34,6 @@ const schema = z.object({
     .max(30, "Username cannot have more than 30 characters"),
   email: z.string().email("The email format is invalid"),
 });
-
-export const emailTemplate = (
-  verificationToken: string,
-  email: string,
-  party: "client" | "business"
-) => {
-  return `
-      <div style="width: 100%;background-color: mediumseagreen;color: black;padding: 50px 25px;display: flex; justify-content: center;">
-        <div style="display: grid;place-items: center;gap: 10px;width: 100%;">
-          <h1>Confirm your account with QRBites</h1>
-          <p>Thank you for signing up for QRBites. To confirm your account, please follow the button below.</p>
-          <a style="text-decoration: none;padding: 10px 6px;background-color: white;color: black; width: 100px;text-align: center;border-radius: 10px;" href="http://localhost:5173/auth/confirm-page?email=${email}&token=${verificationToken}" target="_blank" rel="noopener noreferrer">Confirm</a>
-        </div>
-      </div>
-    `;
-};
-
-export const sendMail = async (email: string, content: string) => {
-  const mail = await transport.sendMail({
-    from: process.env.DEV_MAIL_ADDRESS,
-    to: email,
-    subject: "QRBites account verification",
-    html: content,
-  });
-  return mail.messageId;
-};
 
 export const clientMagicLinkSignup: RequestHandler = async (
   req: Request,
@@ -142,24 +117,11 @@ export const clientMagicLinkSignup: RequestHandler = async (
     return;
   }
 
-  const [emailSendError, mailId] = await catchError(
-    sendMail(
-      result.data.email,
-      emailTemplate(verificationToken, result.data.email, "client")
-    )
-  );
-
-  if (emailSendError || !mailId) {
-    res
-      .status(500)
-      .json(
-        emailSendError
-          ? emailSendError.message
-          : "Server error. Couldn't send an email. Please try again"
-      );
-    return;
-  }
-  logger.info(`mail sent with id: ${mailId}`);
+  addEmailToQueue({
+    email: user[0].email,
+    party: "client",
+    verificationToken: verificationToken,
+  });
 
   res.status(202).json({
     message: "Email sent for verification",
@@ -297,24 +259,11 @@ export const businessMagicLinkSignup = async (req: Request, res: Response) => {
     return;
   }
 
-  const [emailSendError, mailId] = await catchError(
-    sendMail(
-      result.data.email,
-      emailTemplate(verificationToken, result.data.email, "business")
-    )
-  );
-
-  if (emailSendError || !mailId) {
-    res
-      .status(500)
-      .json(
-        emailSendError
-          ? emailSendError.message
-          : "Server error. Couldn't send an email. Please try again"
-      );
-    return;
-  }
-  logger.info(`mail sent with id: ${mailId}`);
+  addEmailToQueue({
+    email: user[0].email,
+    party: "business",
+    verificationToken: verificationToken,
+  });
 
   res.status(202).json({
     message: "Email sent for verification",
@@ -393,16 +342,8 @@ export const businessMagicLinkSignupCallback: RequestHandler = async (
     return;
   }
 
-  const accessToken = createJwtToken(
-  user[0].id,
-  "business",
-  "access",
-  );
-  const refreshToken = createJwtToken(
-  user[0].id,
-  "business",
-  "refresh",
-  );
+  const accessToken = createJwtToken(user[0].id, "business", "access");
+  const refreshToken = createJwtToken(user[0].id, "business", "refresh");
 
   setAuthCookies(accessToken, refreshToken, res);
 

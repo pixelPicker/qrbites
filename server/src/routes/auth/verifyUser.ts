@@ -13,7 +13,7 @@ import { setAuthCookies } from "../../util/setResponseCookies.js";
 import {
   clientVerification,
   staffVerification,
-} from "../../controllers/auth/verify/verification.js";
+} from "../../controllers/auth/verify/userVerification.js";
 
 const router = express.Router();
 

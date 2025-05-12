@@ -7,6 +7,16 @@ declare global {
     role: "staff" | "admin" | "manager";
     alias: string | null;
   }
+  interface Restaurant {
+    id: string;
+    serialNo: number;
+    name: string;
+    email: string;
+    phoneNumber: string[] | null;
+    logoUrl: string | null;
+    openingTime: string | null;
+    closingTime: string | null;
+  }
 }
 
 export {};

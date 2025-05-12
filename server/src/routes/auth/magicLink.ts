@@ -12,19 +12,19 @@ import { businessMagicLinkSignin, clientMagicLinkSignin } from "../../controller
 const router = express.Router();
 
 router
-  .post("/client/signin/magic-link", clientMagicLinkSignin)
-  .post("/client/signin/magic-link/callback", verifyMagicToken, clientMagicLinkSignupCallback)
+  .post("/client/auth/signin/magic-link", clientMagicLinkSignin)
+  .post("/client/auth/signin/magic-link/callback", verifyMagicToken, clientMagicLinkSignupCallback)
 
-  .post("/client/signup/magic-link", clientMagicLinkSignup)
-  .post("/client/signup/magic-link/callback", verifyMagicToken, clientMagicLinkSignupCallback)
+  .post("/client/auth/signup/magic-link", clientMagicLinkSignup)
+  .post("/client/auth/signup/magic-link/callback", verifyMagicToken, clientMagicLinkSignupCallback)
   
   .post("client/auth/resend-email", clientEmailResend)
   
-  .post("/business/signin/magic-link", businessMagicLinkSignin)
-  .post("/business/signin/magic-link/callback", verifyMagicToken, businessMagicLinkSignupCallback)
+  .post("/business/auth/signin/magic-link", businessMagicLinkSignin)
+  .post("/business/auth/signin/magic-link/callback", verifyMagicToken, businessMagicLinkSignupCallback)
 
-  .post("/business/signup/magic-link", businessMagicLinkSignup)
-  .post("/business/signup/magic-link/callback", verifyMagicToken, businessMagicLinkSignupCallback)
+  .post("/business/auth/signup/magic-link", businessMagicLinkSignup)
+  .post("/business/auth/signup/magic-link/callback", verifyMagicToken, businessMagicLinkSignupCallback)
   
   .post("business/auth/resend-email", businessEmailResend)
 

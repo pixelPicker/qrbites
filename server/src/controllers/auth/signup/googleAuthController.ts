@@ -1,34 +1,25 @@
-import { NextFunction, Request, Response } from "express";
-import passport from "passport";
+import { Request, Response } from "express";
 import { createJwtToken } from "../../../util/authTokens.js";
-import {
-  createClientStaff,
-  createClientUser,
-} from "../../../util/createClient.js";
 import { setAuthCookies } from "../../../util/setResponseCookies.js";
 
-export const clientGoogleSignin = (req: Request, res: Response) => {
+export const clientGoogleSignin = async (req: Request, res: Response) => {
   const user = req.user as User;
   if (!user) {
     res.status(401).json({ error: "Authentication failed. Please try again" });
     return;
   }
-  const accessToken = createJwtToken(user.id, "business", "access");
-  const refreshToken = createJwtToken(user.id, "business", "refresh");
+  const accessToken = createJwtToken(user.id, "client", "access");
+  const refreshToken = createJwtToken(user.id, "client", "refresh");
   setAuthCookies(accessToken, refreshToken, res);
 
-  const clientUser = createClientUser({
-    id: user.id,
-    username: user.username,
-    email: user.email,
-    profilePic: user.profilePic,
-  });
+  // TODO: set the redirect url for client
+  const clientRedirectUrl = new URL("http://localhost:5173")
 
-  res.status(202).json({ user: clientUser });
+  res.redirect(clientRedirectUrl.toString());
   return;
 };
 
-export const businessGoogleSignin = (req: Request, res: Response) => {
+export const businessGoogleSignin = async (req: Request, res: Response) => {
   const staff = req.user as Staff;
   if (!staff) {
     res.status(401).json({ error: "Authentication failed. Please try again" });
@@ -39,15 +30,10 @@ export const businessGoogleSignin = (req: Request, res: Response) => {
 
   setAuthCookies(accessToken, refreshToken, res);
 
-  const clientStaff = createClientStaff({
-    id: staff.id,
-    username: staff.username,
-    email: staff.email,
-    profilePic: staff.profilePic,
-    alias: staff.alias,
-    role: staff.role,
-  });
+  const businessRedirectUrl = new URL(
+    "http://localhost:5173/restaurant/create"
+  );
 
-  res.status(202).json({ staff: clientStaff });
+  res.status(202).redirect(businessRedirectUrl.toString());
   return;
 };

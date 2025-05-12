@@ -1,8 +1,8 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ReactNode } from "@tanstack/react-router";
 import { createContext, useContext, useEffect, useRef } from "react";
 import { createStore, useStore, StoreApi } from "zustand";
-import { toast } from "sonner";
+
 interface AuthInterface {
   user: User | null;
   setUser: (user: User) => void;
@@ -13,7 +13,6 @@ const AuthContext = createContext<StoreApi<AuthInterface> | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const authRef = useRef<StoreApi<AuthInterface> | null>(null);
-  const queryClient = useQueryClient();
 
   if (!authRef.current) {
     authRef.current = createStore((set) => ({
@@ -24,18 +23,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const getUser = async () => {
-    const res = await fetch("http://localhost:3000/client/auth/verify-staff");
-    const user = await res.json();
+    const res = await fetch("http://localhost:3000/business/auth/verify", {
+      credentials: "include",
+    });
+    if (!res.ok) {
+      throw new Error("User is unauthorized");
+    }
+    return await res.json();
   };
 
+  const query = useQuery({ queryKey: ["fetch-user"], queryFn: getUser });
+
   useEffect(() => {
-    try {
-      const res = useQuery({ queryKey: ["auth-key"], queryFn: getUser });
-      if (res.error) {
-        toast("Uh, on. Something wrong happened", {});
-      }
-    } catch (error) {}
-  }, []);
+    if (query.data) {
+      authRef.current?.getState().setUser(query.data);
+    }
+  }, [query.isError, query.data]);
 
   return (
     <AuthContext.Provider value={authRef.current}>
@@ -50,7 +53,7 @@ export const useAuthStoreContext = <T,>(
   const store = useContext(AuthContext);
   if (!store) {
     throw new Error(
-      "AuthContext not initialized. Please make sure you are using it in a store provider"
+      "Auth Context not initialized. Please make sure you are using it in a store provider"
     );
   }
   return useStore(store, selector);

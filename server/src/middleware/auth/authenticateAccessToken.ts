@@ -7,16 +7,20 @@ export const authenticateAccessToken = (
   res: Response,
   next: NextFunction
 ) => {
-  if (Object.keys(req.cookies).length === 0) {
-    res.status(403).json({ message: "Auth tokens are required" });
+  if (!req.cookies || Object.keys(req.cookies).length === 0) {
+    res.status(400).send("Invalid request. Auth tokens are required");
     return;
   }
   const accessToken = req.cookies["access-token"];
   const requestToken = req.cookies["refresh-token"];
 
-  if (accessToken == undefined || requestToken == undefined) {
-    res.status(403).json({ message: "Auth tokens are required" });
+  if (requestToken === undefined) {
+    res.status(403).send("Auth tokens are required");
     return;
+  }
+
+  if (accessToken === undefined) {
+    return next();
   }
 
   jwt.verify(
@@ -24,10 +28,16 @@ export const authenticateAccessToken = (
     process.env.JWT_SECRET!,
     (err: VerifyErrors | null, decoded: JwtPayload | string | undefined) => {
       if (err || !decoded || typeof decoded === "string") {
-        return res.status(400).json({ error: "Failed to authenticate user" });
+        return res
+          .status(400)
+          .json({
+            message: "Failed to authenticate user",
+            error: err ?? "couldn't decode the jwt",
+            accessToken: accessToken,
+          });
       }
       res.locals.decoded = decoded;
-      next();
+      return next();
     }
   );
 };

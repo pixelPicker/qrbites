@@ -30,5 +30,23 @@ declare global {
     updatedAt: string;
     providerId: string | null;
   }
+  interface Restaurant {
+    id: string;
+    serialNo: number;
+    name: string;
+    email: string;
+    phoneNumber: string[] | null;
+    logoUrl: string | null;
+    slug: string;
+    openingTime: string | null;
+    closingTime: string | null;
+    createdAt: string;
+    updatedAt: string;
+  }
+  interface VerificationEmail {
+    verificationToken: string;
+    email: string;
+    party: "client" | "business";
+  };
 }
 export {};
