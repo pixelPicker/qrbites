@@ -1,3 +1,4 @@
+import { ErrorToast } from "@/components/custom/Toast";
 import { useMutation } from "@tanstack/react-query";
 import { UseNavigateResult } from "@tanstack/react-router";
 import React from "react";
@@ -11,7 +12,7 @@ export const signinMagicLink = (
     mutationKey: ["auth", "signin", "magic-link"],
     mutationFn: () => signinMagicLinkFn(emailInputRef.current!.value),
     onError: (error) => {
-      toast(error.message, { className: "!bg-non-veg-red !text-woo-white" });
+      ErrorToast(error)
     },
     onSuccess: () => {
       navigate({
@@ -48,7 +49,7 @@ export const signinGoogle = (
     mutationFn: signinGoogleFn,
     mutationKey: ["auth", "signin", "google"],
     onError: (error) => {
-      toast(error.message, { className: "!bg-non-veg-red !text-woo-white" });
+      ErrorToast(error)
     },
     onSuccess: () => {
       navigate({

@@ -1,0 +1,16 @@
+import { RequiredRedAsterisk } from "./RequiredAsterisk";
+
+interface InputLabelProps {
+  for: string;
+  hasAsterisk: boolean;
+  text: string;
+}
+
+export function InputLabel(payload: InputLabelProps) {
+  return (
+    <label htmlFor={payload.for} className="w-full text-left inline-block">
+      {payload.text}
+      {payload.hasAsterisk && <RequiredRedAsterisk />}
+    </label>
+  );
+}

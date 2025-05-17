@@ -10,6 +10,7 @@ import SpacingDiv from "@/components/custom/SpacingDiv";
 import { signupGoogle } from "@/api/mutations/signupMutation";
 import { Toaster } from "sonner";
 import { signinMagicLink } from "@/api/mutations/signinMutation";
+import { RequiredRedAsterisk } from "@/components/custom/RequiredAsterisk";
 
 type ChildProps = {
   handleIsFetching: (isFetching: boolean) => void;
@@ -30,7 +31,7 @@ function RegisterComponent() {
     <div className="w-screen h-screen bg-linear-to-tr from-light-green via-light-green/75">
       <div className="grid place-items-center min-h-screen">
         <section className="bg-woo-white/70 font-Aeonik-Regular min-w-[280px] text-center shadow-xl/20 rounded-2xl !py-16 !px-20">
-          <h2 className="text-4xl flex justify-center font-semibold">
+          <h2 className="text-4xl flex justify-center font-Aeonik-Bold">
             Welcome Back
           </h2>
 
@@ -143,7 +144,10 @@ function Form({ handleIsFetching }: ChildProps) {
       onSubmit={handleFormSubmit}
       className="w-full flex flex-col items-center "
     >
-      <h4 className="w-full text-left font-medium">Email</h4>
+      <label htmlFor="email" className="w-full text-left font-medium">
+        Email
+        <RequiredRedAsterisk />
+      </label>
       <input
         type="email"
         name="email"
@@ -200,6 +204,7 @@ function GoogleLoginButton({ handleIsFetching }: ChildProps) {
     </button>
   );
 }
+
 function HangingIcons() {
   return (
     <>

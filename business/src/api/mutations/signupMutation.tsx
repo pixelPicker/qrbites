@@ -1,3 +1,4 @@
+import { ErrorToast } from "@/components/custom/Toast";
 import { useMutation } from "@tanstack/react-query";
 import { UseNavigateResult } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -15,7 +16,7 @@ export const signupMagicLink = (
         usernameInputRef.current!.value
       ),
     onError: (error) => {
-      toast(error.message, { className: "!bg-non-veg-red !text-woo-white" });
+      ErrorToast(error)
     },
     onSuccess: () => {
       navigate({
@@ -32,7 +33,6 @@ async function signupMagicLinkFn(email: string, username: string) {
     {
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json",
       },
       method: "POST",
       credentials: "include",
@@ -56,7 +56,7 @@ export const signupGoogle = (
     mutationFn: signupGoogleFn,
     mutationKey: ["auth", "signup", "google"],
     onError: (error) => {
-      toast(error.message, { className: "!bg-non-veg-red !text-woo-white" });
+      ErrorToast(error)
     },
     onSuccess: () => {
       navigate({

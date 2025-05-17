@@ -1,3 +1,4 @@
+import { ErrorToast } from "@/components/custom/Toast";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -6,7 +7,7 @@ export const emailResendMutation = (email: string) => {
     mutationKey: ["auth", "email-resend"],
     mutationFn: () => handleEmailResend(email),
     onError: (error) => {
-      toast(error.message, { className: "!bg-non-veg-red !text-woo-white" });
+      ErrorToast(error)
     },
     onSuccess: () => {
       toast("Email sent for verification");
