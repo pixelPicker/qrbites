@@ -7,11 +7,11 @@ import { pinoHttp } from "pino-http";
 import googleAuth from "./routes/auth/googleAuth.js";
 import magicLinkAuth from "./routes/auth/magicLink.js";
 import passport from "passport";
-import restaurantRoutes from "./routes/restaurant/getRestaurant.js";
+import getRestaurant from "./routes/restaurant/getRestaurant.js";
 import verifyUser from "./routes/auth/verifyUser.js";
 import cookieParser from "cookie-parser";
 import "./queue/email/email.worker.js";
-
+import createRestaurant from "./routes/restaurant/createRestaurant.js"
 
 const app = express();
 
@@ -39,9 +39,9 @@ app.get("/", (req, res) => {
 });
 app.use(googleAuth);
 app.use(magicLinkAuth);
-app.use(restaurantRoutes);
+app.use(getRestaurant);
 app.use(verifyUser);
-
+app.use(createRestaurant);
 
 // startup
 const PORT = process.env.PORT || 3000;

@@ -35,9 +35,6 @@ async function signinMagicLinkFn(email: string) {
       email,
     }),
   });
-  if (!res.ok) {
-    throw new Error("Process failed. Please try again");
-  }
   return await res.json();
 }
 

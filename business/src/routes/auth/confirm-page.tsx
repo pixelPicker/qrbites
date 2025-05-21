@@ -1,4 +1,4 @@
-import { emailVerificationQuery } from "@/api/mutations/emailVerification";
+import { emailVerificationQuery } from "@/api/queries/emailVerificationQuery";
 import { useAuthStoreContext } from "@/store/authContext";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { SpinningCircles } from "react-loading-icons";
@@ -77,7 +77,7 @@ function RouteComponent() {
 
   if (verificationQuery.isSuccess) {
     toast("Successfully verified");
-    setUser(verificationQuery.data);
+    setUser(verificationQuery.data.user);
     navigate({ to: "/restaurant/create" });
   }
 }

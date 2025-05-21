@@ -189,9 +189,7 @@ function GoogleLoginButton({ handleIsFetching }: ChildProps) {
     mutation.mutate();
   };
 
-  useEffect(() => {
-    handleIsFetching(mutation.isPending);
-  }, [mutation.isPending]);
+  handleIsFetching(mutation.isPending);
 
   return (
     <button

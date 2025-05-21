@@ -37,6 +37,22 @@
   --color-non-veg-red: #a52a2a;
 }
 
+@layer base {
+  :root {
+    --font-Aeonik-Bold: 'Aeonik-Bold';
+    --font-Aeonik-Regular: 'Aeonik-Regular';
+    --font-Montserrat-Regular: 'Montserrat-Regular';
+    --color-woo-white: #f9fafb;
+    --color-gray-what: #e5e7eb;
+    --color-light-green: #a1f7d8;
+    --color-the-green: #10b981;
+    --color-navy-blue: #1e3a8a;
+    --color-hmm-black: #000000;
+    --color-veg-green: #008000;
+    --color-non-veg-red: #a52a2a;
+  }
+}
+
 /* Rest */
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);

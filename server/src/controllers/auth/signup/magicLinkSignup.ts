@@ -166,12 +166,7 @@ export const clientMagicLinkSignupCallback: RequestHandler = async (
 
   setAuthCookies(accessToken, refreshToken, res);
 
-  const clientUser = createClientUser({
-    id: user[0].id,
-    username: user[0].username,
-    email: user[0].email,
-    profilePic: user[0].profilePic,
-  });
+  const clientUser = createClientUser(user[0]);
 
   res.status(202).json({ user: clientUser });
 };
@@ -314,12 +309,12 @@ export const businessMagicLinkSignupCallback: RequestHandler = async (
   );
 
   if (permissionFetchError) {
-    res.status(500).json({ error: permissionFetchError.message });
+    res.status(500).send(permissionFetchError.message);
     return;
   }
 
   if (allPermissions === undefined) {
-    res.status(500).json({ error: "Process failed. Please try again later" });
+    res.status(500).send("Process failed. Please try again later");
     return;
   }
 
@@ -333,12 +328,12 @@ export const businessMagicLinkSignupCallback: RequestHandler = async (
     });
   }
 
-  const [addPermissionsError, userPermissions] = await catchDrizzzzzleError(
+  const [addPermissionsError] = await catchDrizzzzzleError(
     db.insert(staffPermissions).values(adminPermissions)
   );
 
   if (addPermissionsError) {
-    res.status(500).json({ error: addPermissionsError.message });
+    res.status(500).send(addPermissionsError.message);
     return;
   }
 
@@ -347,14 +342,9 @@ export const businessMagicLinkSignupCallback: RequestHandler = async (
 
   setAuthCookies(accessToken, refreshToken, res);
 
-  const clientStaff = createClientStaff({
-    id: user[0].id,
-    username: user[0].username,
-    email: user[0].email,
-    profilePic: user[0].profilePic,
-    alias: user[0].alias,
-    role: user[0].role,
-  });
+  const clientStaff = createClientStaff(
+    user[0]
+  );
 
   res.status(202).json({ user: clientStaff });
   return;

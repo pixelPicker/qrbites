@@ -25,7 +25,7 @@ export const getRestaurant = async (req: Request, res: Response) => {
         restaurant,
         eq(restaurant.id, restaurantStaff.restaurantId)
       )
-      .where(eq(restaurantStaff.id, decoded.id))
+      .where(eq(restaurantStaff.staffId, decoded.id))
   );
 
   const restaurantRequest = hasDrizzzzzleError(
@@ -40,16 +40,8 @@ export const getRestaurant = async (req: Request, res: Response) => {
     return;
   }
 
-  const clientRestaurant = createClientRestaurant({
-    id: restaurantRequest[0].restaurant.id,
-    closingTime: restaurantRequest[0].restaurant.closingTime,
-    email: restaurantRequest[0].restaurant.email,
-    logoUrl: restaurantRequest[0].restaurant.logoUrl,
-    name: restaurantRequest[0].restaurant.name,
-    openingTime: restaurantRequest[0].restaurant.openingTime,
-    phoneNumber: restaurantRequest[0].restaurant.phoneNumber,
-    serialNo: restaurantRequest[0].restaurant.serialNo,
-  })
+  const clientRestaurant = createClientRestaurant(
+    restaurantRequest[0].restaurant)
 
   res.status(200).json({restaurant: clientRestaurant});
 };

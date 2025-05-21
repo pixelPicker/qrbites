@@ -11,7 +11,16 @@ import { routeTree } from "./routeTree.gen";
 import { AuthProvider } from "./store/authContext";
 import { RestaurantProvider } from "./store/restaurantContext";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3
+    },
+    mutations: {
+      retry: 3
+    },
+  }
+});
 
 const router = createRouter({
   routeTree,

@@ -5,6 +5,7 @@ import { createStore, StoreApi, useStore } from "zustand";
 
 interface RestaurantInterface {
   restaurant: Restaurant | null;
+  restaurantIsLoading: boolean;
   setRestaurant: (restaurant: Restaurant) => void;
   clearRestaurant: () => void;
 }
@@ -19,6 +20,7 @@ export const RestaurantProvider = ({ children }: { children: ReactNode }) => {
   if (!restaurantRef.current) {
     restaurantRef.current = createStore((set) => ({
       restaurant: null,
+      restaurantIsLoading: true,
       setRestaurant: (restaurant: Restaurant) =>
         set({
           restaurant,
@@ -34,7 +36,7 @@ export const RestaurantProvider = ({ children }: { children: ReactNode }) => {
     const res = await fetch("http://localhost:3000/business/restaurant/get", {
       credentials: "include",
     });
-    if(!res.ok) {
+    if (res.status >= 400) {
       throw new Error("Failed to fetch restaurant");
     }
     return res.json();
@@ -46,10 +48,24 @@ export const RestaurantProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    if (query.data) {
-      restaurantRef.current?.getState().setRestaurant(query.data);
+    const store = restaurantRef.current;
+    if (!store) {
+      return;
     }
-  }, [query.isError, query.data]);
+
+    if(query.isLoading) {
+      store.setState({restaurantIsLoading: true});
+      return;
+    }
+
+    if (query.data) {
+      store.getState().setRestaurant(query.data.restaurant);
+      store.setState({ restaurantIsLoading: false });
+    } else {
+      store.getState().clearRestaurant();
+      store.setState({ restaurantIsLoading: false });
+    }
+  }, [query.isError, query.data, query.isLoading]);
 
   return (
     <RestaurantContext.Provider value={restaurantRef.current}>

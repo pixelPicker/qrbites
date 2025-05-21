@@ -1,5 +1,5 @@
 import { MdMarkEmailRead } from "react-icons/md";
-import { emailResendMutation } from "@/api/mutations/emailResend";
+import { emailResendMutation } from "@/api/mutations/emailResendMutation";
 import { useAuthStoreContext } from "@/store/authContext";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";

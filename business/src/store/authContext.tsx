@@ -5,6 +5,7 @@ import { createStore, useStore, StoreApi } from "zustand";
 
 interface AuthInterface {
   user: User | null;
+  authIsLoading: boolean;
   setUser: (user: User) => void;
   clearUser: () => void;
 }
@@ -17,6 +18,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   if (!authRef.current) {
     authRef.current = createStore((set) => ({
       user: null,
+      authIsLoading: true,
       setUser: (user: User) => set({ user }),
       clearUser: () => set({ user: null }),
     }));
@@ -26,7 +28,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const res = await fetch("http://localhost:3000/business/auth/verify", {
       credentials: "include",
     });
-    if (!res.ok) {
+    if (res.status >= 400) {
       throw new Error("User is unauthorized");
     }
     return await res.json();
@@ -35,10 +37,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const query = useQuery({ queryKey: ["fetch-user"], queryFn: getUser });
 
   useEffect(() => {
-    if (query.data) {
-      authRef.current?.getState().setUser(query.data);
+    const store = authRef.current;
+    if (!store) {
+      return;
     }
-  }, [query.isError, query.data]);
+    if(query.isLoading) {
+      store.setState({authIsLoading: true})
+      return;
+    }
+    if (query.data) {
+      authRef.current?.getState().setUser(query.data.user);
+      authRef.current?.setState({ authIsLoading: false });
+    } else {
+      authRef.current?.getState().clearUser();
+      authRef.current?.setState({ authIsLoading: false });
+    }
+  }, [query.isError, query.data, query.isLoading]);
 
   return (
     <AuthContext.Provider value={authRef.current}>

@@ -52,7 +52,6 @@ export const signupGoogle = (
   navigate: UseNavigateResult<string>
 ) => {
   return useMutation({
-    
     mutationFn: signupGoogleFn,
     mutationKey: ["auth", "signup", "google"],
     onError: (error) => {

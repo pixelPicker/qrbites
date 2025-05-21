@@ -1,78 +1,43 @@
-interface clientUser {
-  id: string;
-  username: string;
-  email: string;
-  profilePic: string | null;
-}
-interface clientStaff {
-  id: string;
-  username: string;
-  email: string;
-  profilePic: string | null;
-  role: "staff" | "admin" | "manager";
-  alias: string | null;
-}
-interface clientRestaurant {
-  id: string;
-  serialNo: number;
-  name: string;
-  email: string;
-  phoneNumber: string[] | null;
-  logoUrl: string | null;
-  openingTime: string | null;
-  closingTime: string | null;
-}
+type clientUser = Pick<User, "id" | "username" | "email" | "profilePic">;
 
-export const createClientStaff = ({
-  id,
-  username,
-  email,
-  profilePic,
-  role,
-  alias,
-}: clientStaff): clientStaff => {
+type clientStaff = Pick<
+  Staff,
+  "id" | "username" | "email" | "profilePic" | "role" | "alias"
+>;
+
+type clientRestaurant = Omit<Restaurant, "slug" | "createdAt" | "updatedAt">;
+
+export const createClientStaff = (staff: Staff): clientStaff => {
   return {
-    id: id,
-    username: username,
-    email: email,
-    profilePic: profilePic,
-    role: role,
-    alias: alias,
+    id: staff.id,
+    username: staff.username,
+    email: staff.email,
+    profilePic: staff.profilePic,
+    role: staff.role,
+    alias: staff.alias,
   };
 };
 
-export const createClientUser = ({
-  id,
-  username,
-  email,
-  profilePic,
-}: clientUser): clientUser => {
+export const createClientUser = (user: User): clientUser => {
   return {
-    id,
-    username,
-    email,
-    profilePic,
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    profilePic: user.profilePic,
   };
 };
 
-export const createClientRestaurant = ({
-  id,
-  serialNo,
-  name,
-  email,
-  phoneNumber,
-  logoUrl,
-  openingTime,
-  closingTime,
-}: clientRestaurant): clientRestaurant => {
+export const createClientRestaurant = (
+  restaurant: Restaurant
+): clientRestaurant => {
   return {
-    id,
-    serialNo,
-    name,
-    email,
-    phoneNumber,
-    logoUrl,
-    openingTime,
-    closingTime,
-  }
-}
+    id: restaurant.id,
+    serialNo: restaurant.serialNo,
+    name: restaurant.name,
+    email: restaurant.email,
+    phoneNumber: restaurant.phoneNumber,
+    logoUrl: restaurant.logoUrl,
+    openingTime: restaurant.openingTime,
+    closingTime: restaurant.closingTime,
+  };
+};

@@ -1,4 +1,4 @@
-import { pgTable, varchar, unique, uuid, integer, text, time, timestamp, foreignKey, bigint, boolean, check, real, smallint, primaryKey, pgEnum } from "drizzle-orm/pg-core"
+import { pgTable, varchar, foreignKey, uuid, unique, bigint, text, boolean, timestamp, integer, time, check, real, smallint, primaryKey, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 export const diningAt = pgEnum("dining_at", ['dinein', 'takeaway', 'delivery'])
@@ -14,24 +14,6 @@ export const permissions = pgTable("permissions", {
 	name: varchar({ length: 30 }).primaryKey().notNull(),
 	description: varchar({ length: 50 }),
 });
-
-export const restaurant = pgTable("restaurant", {
-	id: uuid().primaryKey().notNull(),
-	serialNo: integer("serial_no").generatedByDefaultAsIdentity({ name: "restaurant_serial_no_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
-	name: varchar({ length: 50 }).notNull(),
-	email: varchar({ length: 50 }).notNull(),
-	phoneNumber: varchar("phone_number", { length: 10 }).array(),
-	logoUrl: text("logo_url"),
-	slug: varchar({ length: 50 }).notNull(),
-	openingTime: time("opening_time"),
-	closingTime: time("closing_time"),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-}, (table) => [
-	unique("restaurant_serial_no_key").on(table.serialNo),
-	unique("restaurant_email_key").on(table.email),
-	unique("restaurant_slug_key").on(table.slug),
-]);
 
 export const address = pgTable("address", {
 	restaurantId: uuid("restaurant_id"),
@@ -83,6 +65,24 @@ export const staff = pgTable("staff", {
 	providerId: varchar("provider_id", { length: 255 }),
 }, (table) => [
 	unique("staff_email_unique").on(table.email),
+]);
+
+export const restaurant = pgTable("restaurant", {
+	id: uuid().primaryKey().notNull(),
+	serialNo: integer("serial_no").generatedByDefaultAsIdentity({ name: "restaurant_serial_no_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
+	name: varchar({ length: 50 }).notNull(),
+	email: varchar({ length: 50 }).notNull(),
+	phoneNumber: varchar("phone_number", { length: 15 }),
+	logoUrl: text("logo_url"),
+	slug: varchar({ length: 50 }).notNull(),
+	openingTime: time("opening_time"),
+	closingTime: time("closing_time"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [
+	unique("restaurant_serial_no_key").on(table.serialNo),
+	unique("restaurant_email_key").on(table.email),
+	unique("restaurant_slug_key").on(table.slug),
 ]);
 
 export const orders = pgTable("orders", {
@@ -193,8 +193,8 @@ export const users = pgTable("users", {
 
 export const restaurantStaff = pgTable("restaurant_staff", {
 	id: integer().primaryKey().generatedByDefaultAsIdentity({ name: "restaurant_staff_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
-	restaurantId: uuid("restaurant_id"),
-	staffId: uuid("staff_id"),
+	restaurantId: uuid("restaurant_id").notNull(),
+	staffId: uuid("staff_id").notNull(),
 	staffRole: staffRole("staff_role").notNull(),
 }, (table) => [
 	foreignKey({

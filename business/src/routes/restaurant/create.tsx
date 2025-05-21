@@ -25,37 +25,32 @@ function RouteComponent() {
   const { user } = useAuthStoreContext((state) => state);
   const { restaurant } = useRestaurantStoreContext((state) => state);
 
-  // useEffect(() => {
-  //   async function refetch() {
-  //     await Promise.allSettled([
-  //       queryClient.refetchQueries({
-  //         queryKey: ["fetch-user"],
-  //         exact: true,
-  //       }),
-  //       queryClient.refetchQueries({
-  //         queryKey: ["fetch-restaurant"],
-  //         exact: true,
-  //       }),
-  //     ]);
-  //     const user = queryClient.getQueryData(["fetch-user"]);
-  //     const restaurant = queryClient.getQueryData(["fetch-restaurant"]);
+  useEffect(() => {
+    async function refetch() {
+      await Promise.allSettled([
+        queryClient.refetchQueries({
+          queryKey: ["fetch-user"],
+          exact: true,
+        }),
+        queryClient.refetchQueries({
+          queryKey: ["fetch-restaurant"],
+          exact: true,
+        }),
+      ]);
+      const user = queryClient.getQueryData(["fetch-user"]);
+      const restaurant = queryClient.getQueryData(["fetch-restaurant"]);
 
-  //     if (!user) {
-  //       navigate({ to: "/auth/login" });
-  //       return;
-  //     }
-  //     if (restaurant) {
-  //       navigate({ to: "/" });
-  //       return;
-  //     }
-  //   }
-  //   refetch();
-  // }, [navigate]);
-
-  if (!user) {
-    navigate({ to: "/auth/login" });
-    return;
-  }
+      if (!user) {
+        navigate({ to: "/auth/login" });
+        return;
+      }
+      if (restaurant) {
+        navigate({ to: "/" });
+        return;
+      }
+    }
+    refetch();
+  }, [navigate]);
 
   return (
     <div className="w-screen h-screen bg-linear-to-tr from-light-green via-light-green/75">
@@ -68,7 +63,7 @@ function RouteComponent() {
           <p>Fill in the details below to register your restaurant with us</p>
           <SpacingDiv measure="h-8" />
           <div className="w-4/5 mx-auto">
-            <Form userEmail={user.email} />
+            <Form userEmail={user?.email ?? ""} />
           </div>
         </section>
       </div>
@@ -76,65 +71,110 @@ function RouteComponent() {
     </div>
   );
 }
-const formData = new FormData();
 
 function Form({ userEmail }: { userEmail: string }) {
   const emailInputRef = useRef<HTMLInputElement | null>(null);
   const submitButtonRef = useRef<HTMLButtonElement | null>(null);
   const logoInputRef = useRef<HTMLInputElement | null>(null);
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
 
   const [email, setEmail] = useState(userEmail);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [emailError, setEmailError] = useState("");
   const [phoneNumberError, setPhoneNumberError] = useState("");
+  const [fileError, setFileError] = useState("");
+  const [nameError, setNameError] = useState("");
 
-  const mutation = restaurantCreation();
+  const mutation = restaurantCreation(useNavigate());
 
   useEffect(() => {
-    if (phoneNumberError === "" && emailError === "") {
+    if (!emailError) {
+      return;
+    }
+    const emailErrorTimeout = setTimeout(() => {
+      setEmailError("");
+    }, 2000);
+    return () => {
+      clearTimeout(emailErrorTimeout);
+    };
+  }, [emailError]);
+
+  useEffect(() => {
+    if (!phoneNumberError) {
       return;
     }
     const phoneNumberTimeout = setTimeout(() => {
       setPhoneNumberError("");
     }, 2000);
-    const emailErrorTimeout = setTimeout(() => {
-      setEmailError("");
-    }, 2000);
-
     return () => {
       clearTimeout(phoneNumberTimeout);
-      clearTimeout(emailErrorTimeout);
     };
-  }, [emailError, phoneNumberError]);
+  }, [phoneNumberError]);
+
+  useEffect(() => {
+    if (!fileError) {
+      return;
+    }
+    const fileErrorTimeout = setTimeout(() => {
+      setFileError("");
+    }, 2000);
+    return () => {
+      clearTimeout(fileErrorTimeout);
+    };
+  }, [fileError]);
+
+  useEffect(() => {
+    if (!nameError) {
+      return;
+    }
+    const nameErrorTimeout = setTimeout(() => {
+      setNameError("");
+    }, 2000);
+    return () => {
+      clearTimeout(nameErrorTimeout);
+    };
+  }, [nameError]);
 
   function checkValidity(): boolean {
-    if (emailInputRef.current === null) {
-      console.error("Atleast one of the refs is null");
-      return false;
-    }
-
     const emailInput = emailInputRef.current;
 
-    if (emailInput.value.length === 0) {
+    if (emailInput!.value.length === 0) {
       console.log("Email is required");
       setEmailError("Email is required");
       return false;
-    } else if (!emailInput.checkValidity()) {
+    } else if (!emailInput!.checkValidity()) {
       console.log("Invalid email format");
       setEmailError("Invalid email format");
       return false;
     }
+
     const number = phoneNumber;
     if (!isValidPhoneNumber(number)) {
       console.log("Invalid phone number.", number);
       setPhoneNumberError("Invalid phone number.");
       return false;
     }
+    console.log(logoInputRef);
+
+    if (logoInputRef.current!.files?.length === 0) {
+      return true;
+    }
+    const fileSize = logoInputRef.current!.files![0].size;
+    if (fileSize > 1024 * 1024) {
+      console.log("File size exceeds 1MB");
+      setFileError("File size exceeds 1MB");
+      return false;
+    }
+
     return true;
   }
 
   const handleOnSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!nameInputRef.current) {
+      console.log("Name ref is empty");
+      return;
+    }
     if (!emailInputRef.current) {
       console.log("Email ref is empty");
       return;
@@ -148,6 +188,7 @@ function Form({ userEmail }: { userEmail: string }) {
       return;
     }
     mutation.mutate({
+      name: nameInputRef.current.value,
       email: emailInputRef.current.value,
       phoneNumber: phoneNumber,
       file: logoInputRef.current.files ? logoInputRef.current.files[0] : null,
@@ -156,11 +197,28 @@ function Form({ userEmail }: { userEmail: string }) {
 
   return (
     <form onSubmit={handleOnSubmit} method="POST" encType="multipart/form-data">
+      <InputLabel for="name" hasAsterisk={true} text="Name" />
+      <input
+        className="font-Aeonik-Regular flex-1 g-light-green/50 placeholder:font-Aeonik-Regular outline-none border-[2px] border-hmm-black/50 focus-within:border-hmm-black !px-3 flex justify-between items-center !py-2 rounded-lg w-full max-w-[450px]"
+        ref={nameInputRef}
+        name="name"
+        placeholder="eg: goomy eateris"
+        type="text"
+        required
+        maxLength={100}
+        minLength={1}
+      />
+      {nameError && (
+        <p className="text-xs text-red-500 w-full text-left">{nameError}</p>
+      )}
+      <SpacingDiv measure="h-2" />
+
       <InputLabel for="email" hasAsterisk={true} text="Email" />
       <input
         className="font-Aeonik-Regular flex-1 g-light-green/50 placeholder:font-Aeonik-Regular outline-none border-[2px] border-hmm-black/50 focus-within:border-hmm-black !px-3 flex justify-between items-center !py-2 rounded-lg w-full max-w-[450px]"
         ref={emailInputRef}
         name="email"
+        required
         value={email}
         placeholder="eg: goomy@gmail.com"
         type="email"
@@ -193,6 +251,9 @@ function Form({ userEmail }: { userEmail: string }) {
           type="file"
         />
       </div>
+      {fileError && (
+        <p className="text-xs text-red-500 w-full text-left">{fileError}</p>
+      )}
       <SpacingDiv measure="h-4" />
 
       <div className="flex justify-end items-center gap-1 text-sm text-hmm-black/60">
