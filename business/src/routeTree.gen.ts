@@ -11,19 +11,27 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as LandingImport } from './routes/landing'
+import { Route as AdminRouteImport } from './routes/admin/route'
 import { Route as IndexImport } from './routes/index'
+import { Route as AdminIndexImport } from './routes/admin/index'
 import { Route as RestaurantCreateImport } from './routes/restaurant/create'
 import { Route as AuthRegisterImport } from './routes/auth/register'
 import { Route as AuthLoginImport } from './routes/auth/login'
 import { Route as AuthConfirmPageImport } from './routes/auth/confirm-page'
+import { Route as AdminTablesImport } from './routes/admin/tables'
+import { Route as AdminStaffImport } from './routes/admin/staff'
+import { Route as AdminProfileImport } from './routes/admin/profile'
+import { Route as AdminOrdersImport } from './routes/admin/orders'
+import { Route as AdminMenuImport } from './routes/admin/menu'
+import { Route as AdminBillingImport } from './routes/admin/billing'
+import { Route as AdminAnalyticsImport } from './routes/admin/analytics'
 import { Route as AuthVerifyEmailEmailImport } from './routes/auth/verify-email.$email'
 
 // Create/Update Routes
 
-const LandingRoute = LandingImport.update({
-  id: '/landing',
-  path: '/landing',
+const AdminRouteRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -31,6 +39,12 @@ const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AdminIndexRoute = AdminIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 
 const RestaurantCreateRoute = RestaurantCreateImport.update({
@@ -57,6 +71,48 @@ const AuthConfirmPageRoute = AuthConfirmPageImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AdminTablesRoute = AdminTablesImport.update({
+  id: '/tables',
+  path: '/tables',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+
+const AdminStaffRoute = AdminStaffImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+
+const AdminProfileRoute = AdminProfileImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+
+const AdminOrdersRoute = AdminOrdersImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+
+const AdminMenuRoute = AdminMenuImport.update({
+  id: '/menu',
+  path: '/menu',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+
+const AdminBillingRoute = AdminBillingImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+
+const AdminAnalyticsRoute = AdminAnalyticsImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+
 const AuthVerifyEmailEmailRoute = AuthVerifyEmailEmailImport.update({
   id: '/auth/verify-email/$email',
   path: '/auth/verify-email/$email',
@@ -74,12 +130,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/landing': {
-      id: '/landing'
-      path: '/landing'
-      fullPath: '/landing'
-      preLoaderRoute: typeof LandingImport
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRoute
+    }
+    '/admin/analytics': {
+      id: '/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AdminAnalyticsImport
+      parentRoute: typeof AdminRouteImport
+    }
+    '/admin/billing': {
+      id: '/admin/billing'
+      path: '/billing'
+      fullPath: '/admin/billing'
+      preLoaderRoute: typeof AdminBillingImport
+      parentRoute: typeof AdminRouteImport
+    }
+    '/admin/menu': {
+      id: '/admin/menu'
+      path: '/menu'
+      fullPath: '/admin/menu'
+      preLoaderRoute: typeof AdminMenuImport
+      parentRoute: typeof AdminRouteImport
+    }
+    '/admin/orders': {
+      id: '/admin/orders'
+      path: '/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AdminOrdersImport
+      parentRoute: typeof AdminRouteImport
+    }
+    '/admin/profile': {
+      id: '/admin/profile'
+      path: '/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AdminProfileImport
+      parentRoute: typeof AdminRouteImport
+    }
+    '/admin/staff': {
+      id: '/admin/staff'
+      path: '/staff'
+      fullPath: '/admin/staff'
+      preLoaderRoute: typeof AdminStaffImport
+      parentRoute: typeof AdminRouteImport
+    }
+    '/admin/tables': {
+      id: '/admin/tables'
+      path: '/tables'
+      fullPath: '/admin/tables'
+      preLoaderRoute: typeof AdminTablesImport
+      parentRoute: typeof AdminRouteImport
     }
     '/auth/confirm-page': {
       id: '/auth/confirm-page'
@@ -109,6 +214,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RestaurantCreateImport
       parentRoute: typeof rootRoute
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexImport
+      parentRoute: typeof AdminRouteImport
+    }
     '/auth/verify-email/$email': {
       id: '/auth/verify-email/$email'
       path: '/auth/verify-email/$email'
@@ -121,34 +233,83 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
+interface AdminRouteRouteChildren {
+  AdminAnalyticsRoute: typeof AdminAnalyticsRoute
+  AdminBillingRoute: typeof AdminBillingRoute
+  AdminMenuRoute: typeof AdminMenuRoute
+  AdminOrdersRoute: typeof AdminOrdersRoute
+  AdminProfileRoute: typeof AdminProfileRoute
+  AdminStaffRoute: typeof AdminStaffRoute
+  AdminTablesRoute: typeof AdminTablesRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminAnalyticsRoute: AdminAnalyticsRoute,
+  AdminBillingRoute: AdminBillingRoute,
+  AdminMenuRoute: AdminMenuRoute,
+  AdminOrdersRoute: AdminOrdersRoute,
+  AdminProfileRoute: AdminProfileRoute,
+  AdminStaffRoute: AdminStaffRoute,
+  AdminTablesRoute: AdminTablesRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/landing': typeof LandingRoute
+  '/admin': typeof AdminRouteRouteWithChildren
+  '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/billing': typeof AdminBillingRoute
+  '/admin/menu': typeof AdminMenuRoute
+  '/admin/orders': typeof AdminOrdersRoute
+  '/admin/profile': typeof AdminProfileRoute
+  '/admin/staff': typeof AdminStaffRoute
+  '/admin/tables': typeof AdminTablesRoute
   '/auth/confirm-page': typeof AuthConfirmPageRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/restaurant/create': typeof RestaurantCreateRoute
+  '/admin/': typeof AdminIndexRoute
   '/auth/verify-email/$email': typeof AuthVerifyEmailEmailRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/landing': typeof LandingRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/billing': typeof AdminBillingRoute
+  '/admin/menu': typeof AdminMenuRoute
+  '/admin/orders': typeof AdminOrdersRoute
+  '/admin/profile': typeof AdminProfileRoute
+  '/admin/staff': typeof AdminStaffRoute
+  '/admin/tables': typeof AdminTablesRoute
   '/auth/confirm-page': typeof AuthConfirmPageRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/restaurant/create': typeof RestaurantCreateRoute
+  '/admin': typeof AdminIndexRoute
   '/auth/verify-email/$email': typeof AuthVerifyEmailEmailRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/landing': typeof LandingRoute
+  '/admin': typeof AdminRouteRouteWithChildren
+  '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/billing': typeof AdminBillingRoute
+  '/admin/menu': typeof AdminMenuRoute
+  '/admin/orders': typeof AdminOrdersRoute
+  '/admin/profile': typeof AdminProfileRoute
+  '/admin/staff': typeof AdminStaffRoute
+  '/admin/tables': typeof AdminTablesRoute
   '/auth/confirm-page': typeof AuthConfirmPageRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/restaurant/create': typeof RestaurantCreateRoute
+  '/admin/': typeof AdminIndexRoute
   '/auth/verify-email/$email': typeof AuthVerifyEmailEmailRoute
 }
 
@@ -156,36 +317,59 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/landing'
+    | '/admin'
+    | '/admin/analytics'
+    | '/admin/billing'
+    | '/admin/menu'
+    | '/admin/orders'
+    | '/admin/profile'
+    | '/admin/staff'
+    | '/admin/tables'
     | '/auth/confirm-page'
     | '/auth/login'
     | '/auth/register'
     | '/restaurant/create'
+    | '/admin/'
     | '/auth/verify-email/$email'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/landing'
+    | '/admin/analytics'
+    | '/admin/billing'
+    | '/admin/menu'
+    | '/admin/orders'
+    | '/admin/profile'
+    | '/admin/staff'
+    | '/admin/tables'
     | '/auth/confirm-page'
     | '/auth/login'
     | '/auth/register'
     | '/restaurant/create'
+    | '/admin'
     | '/auth/verify-email/$email'
   id:
     | '__root__'
     | '/'
-    | '/landing'
+    | '/admin'
+    | '/admin/analytics'
+    | '/admin/billing'
+    | '/admin/menu'
+    | '/admin/orders'
+    | '/admin/profile'
+    | '/admin/staff'
+    | '/admin/tables'
     | '/auth/confirm-page'
     | '/auth/login'
     | '/auth/register'
     | '/restaurant/create'
+    | '/admin/'
     | '/auth/verify-email/$email'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  LandingRoute: typeof LandingRoute
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
   AuthConfirmPageRoute: typeof AuthConfirmPageRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
@@ -195,7 +379,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  LandingRoute: LandingRoute,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
   AuthConfirmPageRoute: AuthConfirmPageRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
@@ -214,7 +398,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/landing",
+        "/admin",
         "/auth/confirm-page",
         "/auth/login",
         "/auth/register",
@@ -225,8 +409,46 @@ export const routeTree = rootRoute
     "/": {
       "filePath": "index.tsx"
     },
-    "/landing": {
-      "filePath": "landing.tsx"
+    "/admin": {
+      "filePath": "admin/route.tsx",
+      "children": [
+        "/admin/analytics",
+        "/admin/billing",
+        "/admin/menu",
+        "/admin/orders",
+        "/admin/profile",
+        "/admin/staff",
+        "/admin/tables",
+        "/admin/"
+      ]
+    },
+    "/admin/analytics": {
+      "filePath": "admin/analytics.tsx",
+      "parent": "/admin"
+    },
+    "/admin/billing": {
+      "filePath": "admin/billing.tsx",
+      "parent": "/admin"
+    },
+    "/admin/menu": {
+      "filePath": "admin/menu.tsx",
+      "parent": "/admin"
+    },
+    "/admin/orders": {
+      "filePath": "admin/orders.tsx",
+      "parent": "/admin"
+    },
+    "/admin/profile": {
+      "filePath": "admin/profile.tsx",
+      "parent": "/admin"
+    },
+    "/admin/staff": {
+      "filePath": "admin/staff.tsx",
+      "parent": "/admin"
+    },
+    "/admin/tables": {
+      "filePath": "admin/tables.tsx",
+      "parent": "/admin"
     },
     "/auth/confirm-page": {
       "filePath": "auth/confirm-page.tsx"
@@ -239,6 +461,10 @@ export const routeTree = rootRoute
     },
     "/restaurant/create": {
       "filePath": "restaurant/create.tsx"
+    },
+    "/admin/": {
+      "filePath": "admin/index.tsx",
+      "parent": "/admin"
     },
     "/auth/verify-email/$email": {
       "filePath": "auth/verify-email.$email.tsx"
