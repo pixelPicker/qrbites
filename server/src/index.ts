@@ -12,6 +12,8 @@ import verifyUser from "./routes/auth/verifyUser.js";
 import cookieParser from "cookie-parser";
 import "./queue/email/email.worker.js";
 import createRestaurant from "./routes/restaurant/createRestaurant.js"
+import menuRoutes from "./routes/menu/menu.js";
+
 
 const app = express();
 
@@ -42,6 +44,8 @@ app.use(magicLinkAuth);
 app.use(getRestaurant);
 app.use(verifyUser);
 app.use(createRestaurant);
+app.use(menuRoutes);
+
 
 // startup
 const PORT = process.env.PORT || 3000;

@@ -1,6 +1,24 @@
+import { dishCategory } from "./src/db/schema.ts";
+
 declare global {
   interface PostgresError extends Error {
     code?: string;
+  }
+  type DishCategory = (typeof dishCategory.enumValues)[number];
+
+  interface Permissions {
+    edit_menu: boolean;
+    view_menu: boolean;
+    view_staff: boolean;
+    view_orders: boolean;
+    manage_staff: boolean;
+    view_billing: boolean;
+    add_menu_item: boolean;
+    cancel_orders: boolean;
+    view_analytics: boolean;
+    update_settings: boolean;
+    delete_menu_item: boolean;
+    update_order_status: boolean;
   }
   interface User {
     id: string;
@@ -43,10 +61,25 @@ declare global {
     createdAt: string;
     updatedAt: string;
   }
+  interface Dish {
+    id: string;
+    restaurantId: string;
+    name: string;
+    description: string;
+    price: number;
+    category: DishCategory;
+    tags: string[] | null;
+    imageUrl: string;
+    isAvailable: boolean | null;
+    discountPercentage: number | null;
+    createdAt: string;
+    updatedAt: string;
+    preparationTime: number | null;
+  }
   interface VerificationEmail {
     verificationToken: string;
     email: string;
     party: "client" | "business";
-  };
+  }
 }
 export {};

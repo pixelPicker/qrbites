@@ -6,16 +6,16 @@ export function renewTokens(
   renewAccessToken: boolean,
   renewRefreshToken: boolean,
   res: Response,
-  user: User | Staff,
+  id: string,
   aud: "business" | "client"
 ) {
   if (renewAccessToken === true) {
-    const accessToken = createJwtToken(user.id, aud, "access");
+    const accessToken = createJwtToken(id, aud, "access");
     setAuthCookies(accessToken, null, res);
   }
 
   if (renewRefreshToken === true) {
-    const refreshToken = createJwtToken(user.id, aud, "refresh");
+    const refreshToken = createJwtToken(id, aud, "refresh");
     setAuthCookies(null, refreshToken, res);
   }
 }

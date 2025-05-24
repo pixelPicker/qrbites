@@ -83,7 +83,7 @@ export const staffVerification = async (req: Request, res: Response) => {
     return;
   }
 
-  renewTokens(renewAccessToken, renewRefreshToken, res, fetchedUser[0], aud)
+  renewTokens(renewAccessToken, renewRefreshToken, res, fetchedUser[0].id, aud)
 
   const clientUser = createClientStaff(fetchedUser[0]);
   res.status(200).json({ user: clientUser });

@@ -10,8 +10,9 @@ import { v4 as uuidv4 } from "uuid";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import path from "path";
 import { createClientRestaurant } from "../../util/createClient.js";
-import { uploadRestaurantLogo } from "../../lib/s3/upload.js";
+import { getImageUrl, uploadImageToS3 } from "../../lib/s3/upload.js";
 import { deleteRestaurantLogo } from "../../lib/s3/delete.js";
+import logger from "../../config/logger.js";
 
 const schema = z.object({
   name: z
@@ -73,7 +74,16 @@ export const createRestaurant = async (req: Request, res: Response) => {
     : undefined;
 
   if (upload && filename) {
-    await uploadRestaurantLogo(upload, filename);
+    const fileUploadError = await uploadImageToS3(
+      upload,
+      filename,
+      "qrbites-restaurant-logo"
+    );
+    if (fileUploadError) {
+      logger.error({}, fileUploadError.message);
+      res.status(500).send("Failed to upload dish. Please try again later");
+      return;
+    }
   }
 
   const restaurantId = uuidv4();
@@ -91,7 +101,7 @@ export const createRestaurant = async (req: Request, res: Response) => {
         closingTime: result.data.closingTime,
         openingTime: result.data.openingTime,
         logoUrl: filename
-          ? `https://qrbites-restaurant-logo.s3.ap-south-1.amazonaws.com/${filename}`
+          ? getImageUrl(filename, "qrbites-restaurant-logo")
           : undefined,
       })
       .returning()
@@ -111,43 +121,43 @@ export const createRestaurant = async (req: Request, res: Response) => {
     }
     return;
   }
-  
+
   const [staffInsertionError, newStaff] = await catchDrizzzzzleError(
     db
-    .insert(restaurantStaff)
+      .insert(restaurantStaff)
       .values({
         staffRole: "admin",
         restaurantId: checkRestaurant[0].id,
         staffId: decoded.id,
       })
       .returning()
-    );
-    
-    const newStaffRequestError = hasDrizzzzzleError(
-      staffInsertionError,
-      newStaff,
-      res,
-      null,
-      null
-    );
-    
-    if (!newStaffRequestError) {
+  );
+
+  const newStaffRequestError = hasDrizzzzzleError(
+    staffInsertionError,
+    newStaff,
+    res,
+    null,
+    null
+  );
+
+  if (!newStaffRequestError) {
     if (filename) {
       await deleteRestaurantLogo(filename);
     }
     return;
   }
-  
+
   const clientRestaurant = createClientRestaurant(checkRestaurant[0]);
-  
+
   renewTokens(
     renewAccessToken,
     renewRefreshToken,
     res,
-    updateRequestAborted[0],
+    updateRequestAborted[0].id,
     aud
   );
-  
+
   res.status(201).json({ restaurant: clientRestaurant });
   return;
 };

@@ -1,13 +1,15 @@
-type clientUser = Pick<User, "id" | "username" | "email" | "profilePic">;
+type ClientUser = Pick<User, "id" | "username" | "email" | "profilePic">;
 
-type clientStaff = Pick<
+type ClientStaff = Pick<
   Staff,
   "id" | "username" | "email" | "profilePic" | "role" | "alias"
 >;
 
-type clientRestaurant = Omit<Restaurant, "slug" | "createdAt" | "updatedAt">;
+type ClientRestaurant = Omit<Restaurant, "createdAt" | "updatedAt">;
 
-export const createClientStaff = (staff: Staff): clientStaff => {
+type ClientDish = Omit<Dish, "restaurantId" | "createdAt" | "updatedAt">;
+
+export const createClientStaff = (staff: Staff): ClientStaff => {
   return {
     id: staff.id,
     username: staff.username,
@@ -18,7 +20,7 @@ export const createClientStaff = (staff: Staff): clientStaff => {
   };
 };
 
-export const createClientUser = (user: User): clientUser => {
+export const createClientUser = (user: User): ClientUser => {
   return {
     id: user.id,
     username: user.username,
@@ -29,7 +31,7 @@ export const createClientUser = (user: User): clientUser => {
 
 export const createClientRestaurant = (
   restaurant: Restaurant
-): clientRestaurant => {
+): ClientRestaurant => {
   return {
     id: restaurant.id,
     serialNo: restaurant.serialNo,
@@ -37,7 +39,23 @@ export const createClientRestaurant = (
     email: restaurant.email,
     phoneNumber: restaurant.phoneNumber,
     logoUrl: restaurant.logoUrl,
+    slug: restaurant.slug,
     openingTime: restaurant.openingTime,
     closingTime: restaurant.closingTime,
+  };
+};
+
+export const createClientDish = (dish: ClientDish): ClientDish => {
+  return {
+    id: dish.id,
+    name: dish.name,
+    description: dish.description,
+    price: dish.price,
+    category: dish.category,
+    tags: dish.tags,
+    imageUrl: dish.imageUrl,
+    isAvailable: dish.isAvailable,
+    discountPercentage: dish.discountPercentage,
+    preparationTime: dish.preparationTime,
   };
 };

@@ -10,7 +10,7 @@ export const hasDrizzzzzleError = function <T>(
   
   if (drizzzzzleError || !result || result.length === 0) {
     res
-      .status(500)
+      .status(statusCode ?? 500)
       .json({
         error: drizzzzzleError ? drizzzzzleError.message : fallbackMessage ?? "Internal server error. Please try again later",
       });

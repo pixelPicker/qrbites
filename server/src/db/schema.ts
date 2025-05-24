@@ -1,4 +1,4 @@
-import { pgTable, varchar, foreignKey, uuid, unique, bigint, text, boolean, timestamp, integer, time, check, real, smallint, primaryKey, pgEnum } from "drizzle-orm/pg-core"
+import { pgTable, varchar, foreignKey, uuid, unique, bigint, text, boolean, timestamp, integer, time, check, real, smallint, primaryKey, pgView, jsonb, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 export const diningAt = pgEnum("dining_at", ['dinein', 'takeaway', 'delivery'])
@@ -151,7 +151,7 @@ export const feedback = pgTable("feedback", {
 
 export const dish = pgTable("dish", {
 	id: uuid().primaryKey().notNull(),
-	restaurantId: uuid("restaurant_id"),
+	restaurantId: uuid("restaurant_id").notNull(),
 	name: varchar({ length: 30 }).notNull(),
 	description: varchar({ length: 100 }).notNull(),
 	price: real().notNull(),
@@ -247,3 +247,18 @@ export const orderItems = pgTable("order_items", {
 	check("order_items_quanity_check", sql`quanity >= 0`),
 	check("order_items_price_check", sql`price >= (0)::double precision`),
 ]);
+export const staffWithPermissions = pgView("staff_with_permissions", {	id: uuid(),
+	username: varchar({ length: 30 }),
+	email: varchar({ length: 30 }),
+	password: text(),
+	provider: loginProvider(),
+	profilePic: varchar("profile_pic", { length: 100 }),
+	role: staffRole(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }),
+	alias: varchar({ length: 30 }),
+	emailVerificationToken: text("email_verification_token"),
+	isVerified: boolean("is_verified"),
+	providerId: varchar("provider_id", { length: 255 }),
+	permissions: jsonb(),
+}).as(sql`SELECT s.id, s.username, s.email, s.password, s.provider, s.profile_pic, s.role, s.created_at, s.updated_at, s.alias, s.email_verification_token, s.is_verified, s.provider_id, jsonb_object_agg(sp.permission, sp.is_granted) AS permissions FROM staff s LEFT JOIN staff_permissions sp ON s.id = sp.staff_id GROUP BY s.id, s.username, s.role, s.created_at, s.updated_at`);
