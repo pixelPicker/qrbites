@@ -1,4 +1,4 @@
-import { emailVerificationQuery } from "@/api/queries/emailVerificationQuery";
+import { emailVerificationQuery } from "@/api/auth/emailVerificationQuery";
 import { useAuthStoreContext } from "@/store/authContext";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { SpinningCircles } from "react-loading-icons";

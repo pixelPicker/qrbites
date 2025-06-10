@@ -13,7 +13,7 @@ import { GiHotMeal } from "react-icons/gi";
 import { BiFoodMenu } from "react-icons/bi";
 import { IoQrCodeOutline } from "react-icons/io5";
 import { useRestaurantStoreContext } from "@/store/restaurantContext";
-import { restaurantCreation } from "@/api/mutations/restaurantCreation";
+import { restaurantCreation } from "@/api/restaurant/restaurantCreation";
 
 export const Route = createFileRoute("/restaurant/create")({
   component: RouteComponent,
@@ -139,29 +139,24 @@ function Form({ userEmail }: { userEmail: string }) {
     const emailInput = emailInputRef.current;
 
     if (emailInput!.value.length === 0) {
-      console.log("Email is required");
       setEmailError("Email is required");
       return false;
     } else if (!emailInput!.checkValidity()) {
-      console.log("Invalid email format");
       setEmailError("Invalid email format");
       return false;
     }
 
     const number = phoneNumber;
     if (!isValidPhoneNumber(number)) {
-      console.log("Invalid phone number.", number);
       setPhoneNumberError("Invalid phone number.");
       return false;
     }
-    console.log(logoInputRef);
 
     if (logoInputRef.current!.files?.length === 0) {
       return true;
     }
     const fileSize = logoInputRef.current!.files![0].size;
     if (fileSize > 1024 * 1024) {
-      console.log("File size exceeds 1MB");
       setFileError("File size exceeds 1MB");
       return false;
     }
@@ -172,15 +167,12 @@ function Form({ userEmail }: { userEmail: string }) {
   const handleOnSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!nameInputRef.current) {
-      console.log("Name ref is empty");
       return;
     }
     if (!emailInputRef.current) {
-      console.log("Email ref is empty");
       return;
     }
     if (!logoInputRef.current) {
-      console.log("Logo ref is empty");
       return;
     }
 

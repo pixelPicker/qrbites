@@ -12,7 +12,7 @@
   src: url("/fonts/Aeonik-Regular.otf");
 }
 @font-face {
-  font-family: "Bricolage-Grotesque";
+  font-family: "Montserrat-Regular";
   src: url("/fonts/Montserrat-Regular.ttf");
 }
 
@@ -28,28 +28,79 @@
   --font-Aeonik-Regular: "Aeonik-Regular";
   --font-Montserrat-Regular: "Montserrat-Regular";
   --color-woo-white: #f9fafb;
+  --color-woo-white-hover: #f3f4f6;
+  --color-woo-white-active: #e5e7eb;
+
   --color-gray-what: #e5e7eb;
+  --color-gray-what-hover: #d1d5db;
+  --color-gray-what-active: #9ca3af;
+
+  --color-dark-what: #6b7280;
+  --color-dark-what-hover: #4b5563;
+  --color-dark-what-active: #374151;
+
   --color-light-green: #a1f7d8;
+  --color-light-green-hover: #7ff5c8;
+  --color-light-green-active: #5fe7b2;
+
   --color-the-green: #10b981;
+  --color-the-green-hover: #059669;
+  --color-the-green-active: #047857;
+
   --color-navy-blue: #1e3a8a;
+  --color-navy-blue-hover: #1e40af;
+  --color-navy-blue-active: #1d4ed8;
+
   --color-hmm-black: #000000;
+  --color-hmm-black-hover: #111111;
+  --color-hmm-black-active: #222222;
+
   --color-veg-green: #008000;
+  --color-veg-green-hover: #006400;
+  --color-veg-green-active: #004d00;
+
   --color-non-veg-red: #a52a2a;
+  --color-non-veg-red-hover: #8b1e1e;
+  --color-non-veg-red-active: #701414;
 }
 
 @layer base {
   :root {
-    --font-Aeonik-Bold: 'Aeonik-Bold';
-    --font-Aeonik-Regular: 'Aeonik-Regular';
-    --font-Montserrat-Regular: 'Montserrat-Regular';
     --color-woo-white: #f9fafb;
+    --color-woo-white-hover: #f3f4f6;
+    --color-woo-white-active: #e5e7eb;
+
     --color-gray-what: #e5e7eb;
+    --color-gray-what-hover: #d1d5db;
+    --color-gray-what-active: #9ca3af;
+
+    --color-dark-what: #6b7280;
+    --color-dark-what-hover: #4b5563;
+    --color-dark-what-active: #374151;
+
     --color-light-green: #a1f7d8;
+    --color-light-green-hover: #7ff5c8;
+    --color-light-green-active: #5fe7b2;
+
     --color-the-green: #10b981;
+    --color-the-green-hover: #059669;
+    --color-the-green-active: #047857;
+
     --color-navy-blue: #1e3a8a;
+    --color-navy-blue-hover: #1e40af;
+    --color-navy-blue-active: #1d4ed8;
+
     --color-hmm-black: #000000;
+    --color-hmm-black-hover: #111111;
+    --color-hmm-black-active: #222222;
+
     --color-veg-green: #008000;
+    --color-veg-green-hover: #006400;
+    --color-veg-green-active: #004d00;
+
     --color-non-veg-red: #a52a2a;
+    --color-non-veg-red-hover: #8b1e1e;
+    --color-non-veg-red-active: #701414;
   }
 }
 

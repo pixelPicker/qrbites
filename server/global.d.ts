@@ -70,6 +70,7 @@ declare global {
     category: DishCategory;
     tags: string[] | null;
     imageUrl: string;
+    isVeg: boolean;
     isAvailable: boolean | null;
     discountPercentage: number | null;
     createdAt: string;

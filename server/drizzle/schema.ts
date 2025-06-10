@@ -1,4 +1,4 @@
-import { pgTable, varchar, foreignKey, uuid, unique, bigint, text, boolean, timestamp, integer, time, check, real, smallint, primaryKey, pgView, jsonb, pgEnum } from "drizzle-orm/pg-core"
+import { pgTable, varchar, foreignKey, uuid, unique, text, timestamp, boolean, integer, time, check, bigint, smallint, real, primaryKey, pgView, jsonb, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 export const diningAt = pgEnum("dining_at", ['dinein', 'takeaway', 'delivery'])
@@ -28,25 +28,6 @@ export const address = pgTable("address", {
 			foreignColumns: [restaurant.id],
 			name: "address_restaurant_id_fkey"
 		}).onDelete("cascade"),
-]);
-
-export const restaurantTable = pgTable("restaurant_table", {
-	id: uuid().primaryKey().notNull(),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	serialNo: bigint("serial_no", { mode: "number" }).generatedByDefaultAsIdentity({ name: "restaurant_table_serial_no_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
-	restaurantId: uuid("restaurant_id"),
-	qrcode: text().notNull(),
-	backupCode: varchar("backup_code", { length: 10 }).notNull(),
-	isOccupied: boolean("is_occupied").default(false),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-}, (table) => [
-	foreignKey({
-			columns: [table.restaurantId],
-			foreignColumns: [restaurant.id],
-			name: "restaurant_table_restaurant_id_fkey"
-		}).onDelete("cascade"),
-	unique("restaurant_table_serial_no_key").on(table.serialNo),
 ]);
 
 export const staff = pgTable("staff", {
@@ -83,6 +64,28 @@ export const restaurant = pgTable("restaurant", {
 	unique("restaurant_serial_no_key").on(table.serialNo),
 	unique("restaurant_email_key").on(table.email),
 	unique("restaurant_slug_key").on(table.slug),
+]);
+
+export const restaurantTable = pgTable("restaurant_table", {
+	id: uuid().primaryKey().notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	serialNo: bigint("serial_no", { mode: "number" }).generatedByDefaultAsIdentity({ name: "restaurant_table_serial_no_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
+	restaurantId: uuid("restaurant_id").notNull(),
+	qrcode: text().notNull(),
+	backupCode: varchar("backup_code", { length: 10 }).notNull(),
+	isOccupied: boolean("is_occupied").default(false),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	name: varchar({ length: 30 }),
+	capacity: smallint(),
+}, (table) => [
+	foreignKey({
+			columns: [table.restaurantId],
+			foreignColumns: [restaurant.id],
+			name: "restaurant_table_restaurant_id_fkey"
+		}).onDelete("cascade"),
+	unique("restaurant_table_serial_no_key").on(table.serialNo),
+	check("capacity_positive", sql`capacity > 0`),
 ]);
 
 export const orders = pgTable("orders", {
@@ -149,32 +152,6 @@ export const feedback = pgTable("feedback", {
 	check("feedback_rating_check", sql`(rating >= 0) AND (rating <= 5)`),
 ]);
 
-export const dish = pgTable("dish", {
-	id: uuid().primaryKey().notNull(),
-	restaurantId: uuid("restaurant_id").notNull(),
-	name: varchar({ length: 30 }).notNull(),
-	description: varchar({ length: 100 }).notNull(),
-	price: real().notNull(),
-	category: dishCategory().notNull(),
-	tags: varchar({ length: 25 }).array(),
-	imageUrl: text("image_url").notNull(),
-	isAvailable: boolean("is_available").default(true),
-	discountPercentage: real("discount_percentage").default(0),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-	preparationTime: smallint("preparation_time"),
-}, (table) => [
-	foreignKey({
-			columns: [table.restaurantId],
-			foreignColumns: [restaurant.id],
-			name: "dish_restaurant_id_fkey"
-		}),
-	check("dish_discount_percentage_check", sql`(discount_percentage >= (0)::double precision) AND (discount_percentage <= (100)::double precision)`),
-	check("dish_price_check", sql`price >= (1)::double precision`),
-	check("dish_tags_check", sql`array_length(tags, 1) <= 5`),
-	check("dish_preparation_time_check", sql`preparation_time <= 0`),
-]);
-
 export const users = pgTable("users", {
 	id: uuid().primaryKey().notNull(),
 	username: varchar({ length: 30 }).notNull(),
@@ -189,6 +166,33 @@ export const users = pgTable("users", {
 	providerId: varchar("provider_id", { length: 255 }),
 }, (table) => [
 	unique("users_email_unique").on(table.email),
+]);
+
+export const dish = pgTable("dish", {
+	id: uuid().primaryKey().notNull(),
+	restaurantId: uuid("restaurant_id").notNull(),
+	name: varchar({ length: 30 }).notNull(),
+	description: varchar({ length: 100 }).notNull(),
+	price: real().notNull(),
+	category: dishCategory().notNull(),
+	tags: varchar({ length: 25 }).array(),
+	imageUrl: text("image_url").notNull(),
+	isAvailable: boolean("is_available").default(true),
+	discountPercentage: real("discount_percentage").default(0),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	preparationTime: smallint("preparation_time"),
+	isVeg: boolean("is_veg").notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.restaurantId],
+			foreignColumns: [restaurant.id],
+			name: "dish_restaurant_id_fkey"
+		}),
+	check("dish_discount_percentage_check", sql`(discount_percentage >= (0)::double precision) AND (discount_percentage <= (100)::double precision)`),
+	check("dish_price_check", sql`price >= (1)::double precision`),
+	check("dish_tags_check", sql`array_length(tags, 1) <= 5`),
+	check("dish_preparation_time_check", sql`preparation_time >= 0`),
 ]);
 
 export const restaurantStaff = pgTable("restaurant_staff", {

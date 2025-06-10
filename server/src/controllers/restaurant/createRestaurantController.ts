@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { renewTokens } from "../../util/renewTokens.js";
+import { renewTokens } from "../../middleware/auth/renewTokens.js";
 import { catchDrizzzzzleError } from "../../util/catchError.js";
 import { db } from "../../config/db.js";
 import { restaurant, restaurantStaff, staff } from "../../db/schema.js";
@@ -11,7 +11,7 @@ import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import path from "path";
 import { createClientRestaurant } from "../../util/createClient.js";
 import { getImageUrl, uploadImageToS3 } from "../../lib/s3/upload.js";
-import { deleteRestaurantLogo } from "../../lib/s3/delete.js";
+import { deleteS3Image } from "../../lib/s3/delete.js";
 import logger from "../../config/logger.js";
 
 const schema = z.object({
@@ -30,8 +30,6 @@ const schema = z.object({
 
 export const createRestaurant = async (req: Request, res: Response) => {
   const decoded = res.locals.decoded;
-  const renewAccessToken = res.locals.renewAccessToken as boolean;
-  const renewRefreshToken = res.locals.renewRefreshToken as boolean;
   const aud = decoded.aud;
 
   if (aud !== "business") {
@@ -117,7 +115,7 @@ export const createRestaurant = async (req: Request, res: Response) => {
 
   if (!checkRestaurant) {
     if (filename) {
-      await deleteRestaurantLogo(filename);
+      await deleteS3Image(filename, "qrbites-restaurant-logo");
     }
     return;
   }
@@ -143,20 +141,12 @@ export const createRestaurant = async (req: Request, res: Response) => {
 
   if (!newStaffRequestError) {
     if (filename) {
-      await deleteRestaurantLogo(filename);
+      await deleteS3Image(filename, "qrbites-restaurant-logo");
     }
     return;
   }
 
   const clientRestaurant = createClientRestaurant(checkRestaurant[0]);
-
-  renewTokens(
-    renewAccessToken,
-    renewRefreshToken,
-    res,
-    updateRequestAborted[0].id,
-    aud
-  );
 
   res.status(201).json({ restaurant: clientRestaurant });
   return;

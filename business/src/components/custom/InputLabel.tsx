@@ -8,7 +8,7 @@ interface InputLabelProps {
 
 export function InputLabel(payload: InputLabelProps) {
   return (
-    <label htmlFor={payload.for} className="w-full text-left inline-block">
+    <label htmlFor={payload.for} className="w-full text-left text-gray-800 inline-block">
       {payload.text}
       {payload.hasAsterisk && <RequiredRedAsterisk />}
     </label>

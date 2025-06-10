@@ -7,9 +7,9 @@ import { IoQrCodeOutline } from "react-icons/io5";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import React, { useEffect, useRef, useState } from "react";
 import SpacingDiv from "@/components/custom/SpacingDiv";
-import { signupGoogle } from "@/api/mutations/signupMutation";
+import { signupGoogle } from "@/api/auth/signupMutation";
 import { Toaster } from "sonner";
-import { signinMagicLink } from "@/api/mutations/signinMutation";
+import { signinMagicLink } from "@/api/auth/signinMutation";
 import { RequiredRedAsterisk } from "@/components/custom/RequiredAsterisk";
 
 type ChildProps = {
@@ -115,11 +115,9 @@ function Form({ handleIsFetching }: ChildProps) {
     const emailInput = emailInputRef.current;
 
     if (emailInput.value.length === 0) {
-      console.log("Email is required");
       setEmailError("Email is required");
       return false;
     } else if (!emailInput.checkValidity()) {
-      console.log("Invalid email format");
       setEmailError("Invalid email format");
       return false;
     }
@@ -184,7 +182,6 @@ function GoogleLoginButton({ handleIsFetching }: ChildProps) {
   const mutation = signupGoogle(navigate);
 
   const handleLoginButtonClick = () => {
-    console.log(123);
 
     mutation.mutate();
   };

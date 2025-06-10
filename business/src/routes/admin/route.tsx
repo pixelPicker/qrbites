@@ -30,6 +30,7 @@ import {
 } from "@tanstack/react-router";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LucideBarChart3 } from "lucide-react";
+import { SpinningCircles } from "react-loading-icons";
 
 export const Route = createFileRoute("/admin")({
   component: RouteComponent,
@@ -41,41 +42,30 @@ function RouteComponent() {
     (state) => state
   );
   const navigate = useNavigate();
-  console.log({ user, restaurant, line: "index.tsx - 25" });
 
-  //   if (authIsLoading || restaurantIsLoading) {
-  //     return (
-  //       <div className="w-screen grid place-items-center min-h-screen">
-  //         <SpinningCircles speed={0.7} />
-  //       </div>
-  //     );
-  //   }
-  //   if (!user) {
-  //     console.log({ authIsLoading, user });
+  if (authIsLoading || restaurantIsLoading) {
+    return (
+      <div className="w-screen bg-dark-what grid place-items-center min-h-screen">
+        <SpinningCircles speed={0.7} />
+      </div>
+    );
+  }
 
-  //     navigate({ to: "/auth/login" });
-  //     return;
-  //   }
-  //   if (!restaurant) {
-  //     console.log({ restaurantIsLoading, restaurant });
+  if (!user) {
+    navigate({ to: "/auth/login" });
+    return;
+  }
 
-  //     navigate({ to: "/restaurant/create" });
-  //     return;
-  //   }
-  const dummyUser: User = {
-    email: "ipsumlorem1290@gmail.com",
-    id: "1",
-    role: "admin",
-    username: "ipsum",
-    profilePic: null,
-    alias: null,
-  };
-  return <AppSidebar user={user ?? dummyUser} />;
+  if (!restaurant) {
+    navigate({ to: "/restaurant/create" });
+    return;
+  }
+  return <AppSidebar user={user} />;
 }
 
 export function AppSidebar({ user }: { user: User }) {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="max-h-screen overflow-hidden">
       <Sidebar
         collapsible="none"
         className="border-gray-what font-Aeonik-Regular text-hmm-black h-screen"
@@ -94,7 +84,9 @@ export function AppSidebar({ user }: { user: User }) {
                 <SidebarMenuButton asChild>
                   <Link
                     to="/admin"
-                    className="flex items-center gap-5 !px-4 !py-6 hover:!bg-light-green/60 !text-base rounded-md transition"
+                    className="flex items-center gap-5 !px-4 !py-6 hover:!bg-light-green/80 !text-base rounded-md transition"
+                    activeProps={{ className: "bg-the-green/60" }}
+                    activeOptions={{ exact: true }}
                   >
                     <LuLayoutDashboard className="scale-150" />
                     <span>Dashboard</span>
@@ -106,6 +98,8 @@ export function AppSidebar({ user }: { user: User }) {
                   <Link
                     to="/admin/orders"
                     className="flex items-center gap-5 !px-4 !py-6 hover:!bg-light-green/60 !text-base rounded-md transition"
+                    activeProps={{ className: "bg-the-green/60" }}
+                    activeOptions={{ exact: true }}
                   >
                     <LuScrollText className="scale-150" />
                     <span>Orders</span>
@@ -117,6 +111,8 @@ export function AppSidebar({ user }: { user: User }) {
                   <Link
                     to="/admin/menu"
                     className="flex items-center gap-5 !px-4 !py-6 hover:!bg-light-green/60 !text-base rounded-md transition"
+                    activeProps={{ className: "bg-the-green/60" }}
+                    activeOptions={{ exact: true }}
                   >
                     <LuUtensils className="scale-150" />
                     <span>Menu</span>
@@ -128,6 +124,8 @@ export function AppSidebar({ user }: { user: User }) {
                   <Link
                     to="/admin/tables"
                     className="flex items-center gap-5 !px-4 !py-6 hover:!bg-light-green/60 !text-base rounded-md transition"
+                    activeProps={{ className: "bg-the-green/60" }}
+                    activeOptions={{ exact: true }}
                   >
                     <LuQrCode className="scale-150" />
                     <span>Tables</span>
@@ -139,6 +137,8 @@ export function AppSidebar({ user }: { user: User }) {
                   <Link
                     to="/admin/staff"
                     className="flex items-center gap-5 !px-4 !py-6 hover:!bg-light-green/60 !text-base rounded-md transition"
+                    activeProps={{ className: "bg-the-green/60" }}
+                    activeOptions={{ exact: true }}
                   >
                     <LuUsers className="scale-150" />
                     <span>Staff</span>
@@ -150,6 +150,8 @@ export function AppSidebar({ user }: { user: User }) {
                   <Link
                     to="/admin/billing"
                     className="flex items-center gap-5 !px-4 !py-6 hover:!bg-light-green/60 !text-base rounded-md transition"
+                    activeProps={{ className: "bg-the-green/60" }}
+                    activeOptions={{ exact: true }}
                   >
                     <LuCreditCard className="scale-150" />
                     <span>Billing</span>
@@ -161,6 +163,8 @@ export function AppSidebar({ user }: { user: User }) {
                   <Link
                     to="/admin/analytics"
                     className="flex items-center gap-5 !px-4 !py-6 hover:!bg-light-green/60 !text-base rounded-md transition"
+                    activeProps={{ className: "bg-the-green/60" }}
+                    activeOptions={{ exact: true }}
                   >
                     <LucideBarChart3 className="scale-150" />
                     <span>Analytics</span>
@@ -173,7 +177,10 @@ export function AppSidebar({ user }: { user: User }) {
 
         {/* Footer */}
         <SidebarFooter className="h-16 !border-t-2 font-Aeonik-Regular border-gray-what">
-          <Link to="/admin/profile" className="flex items-center gap-5 hover:bg-light-green/60 rounded-lg !py-3 !px-4 my-auto">
+          <Link
+            to="/admin/profile"
+            className="flex items-center gap-5 hover:bg-light-green/60 rounded-lg !py-3 !px-4 my-auto"
+          >
             {user?.profilePic ? (
               <img
                 src={user.profilePic}

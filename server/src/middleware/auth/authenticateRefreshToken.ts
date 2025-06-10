@@ -18,7 +18,8 @@ export const authenticateRefreshToken = (
     process.env.JWT_SECRET!,
     (err: VerifyErrors | null, decoded: JwtPayload | string | undefined) => {
       if (err || !decoded || typeof decoded === "string") {
-        return res.status(400).send("Failed to authenticate user" );
+        res.status(400).send("Failed to authenticate user" );
+        return
       }
       res.locals.decoded = decoded;
       res.locals.renewAccessToken = true;

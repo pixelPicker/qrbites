@@ -12,71 +12,117 @@ import {
 } from "../../db/schema.js";
 import { db } from "../../config/db.js";
 import { hasDrizzzzzleError } from "../../util/checkError.js";
-import { renewTokens } from "../../util/renewTokens.js";
+import { renewTokens } from "../../middleware/auth/renewTokens.js";
 import path from "path";
 import { getImageUrl, uploadImageToS3 } from "../../lib/s3/upload.js";
 import logger from "../../config/logger.js";
 import { createClientDish } from "../../util/createClient.js";
+import { deleteS3Image } from "../../lib/s3/delete.js";
 
 const dishIdSchema = z.object({
   dishId: z.string().uuid(),
 });
 
 const addDishSchema = z.object({
-  dish: z.object({
-    name: z
-      .string()
-      .max(30, { message: "Dish name must be less than 30 characters" }),
-    description: z
-      .string()
-      .max(100, { message: "Description must be less than 100 characters" }),
-    price: z.number().min(1),
-    category: z.enum(dishCategory.enumValues),
-    tags: z.optional(z.string().array()),
-    isAvailable: z.optional(z.boolean()),
-    discountPercentage: z.optional(
-      z
-        .number()
-        .min(0, { message: "DIscount percentage should atleast be 0" })
-        .max(100, { message: "Discount margins cannot exceed 100%" })
-    ),
-    preparationTime: z.optional(z.number().int().min(0)),
-  }),
+  name: z
+    .string()
+    .max(30, { message: "Dish name must be less than 30 characters" }),
+  description: z
+    .string()
+    .max(100, { message: "Description must be less than 100 characters" }),
+  category: z.enum(dishCategory.enumValues),
+  tags: z.preprocess((val) => {
+    if (typeof val === "string") {
+      try {
+        return JSON.parse(val);
+      } catch (error) {
+        return [];
+      }
+    }
+    return val;
+  }, z.array(z.string()).optional()),
+  isVeg: z.preprocess((val) => val === "true" || val === true, z.boolean()),
+  isAvailable: z.preprocess(
+    (val) => (val === undefined ? undefined : val === "true" || val === true),
+    z.boolean().optional()
+  ),
+  price: z.preprocess(
+    (val) => Number(val),
+    z
+      .number()
+      .min(1)
+      .max(1_000_000_000, { message: "Whatcha sellin bro /-O.O-\\" })
+  ),
+  discountPercentage: z.preprocess(
+    (val) => (val !== undefined ? Number(val) : undefined),
+    z
+      .number()
+      .min(0, { message: "Discount percentage should atleast be 0" })
+      .max(100, { message: "Discount margins cannot exceed 100%" })
+      .optional()
+  ),
+  preparationTime: z.preprocess(
+    (val) => (val ? parseInt(val as string) : undefined),
+    z.number().int().min(0).optional()
+  ),
 });
-
 const updateDishSchema = z.object({
-  dish: z.object({
-    id: z.string().uuid(),
-    name: z.optional(
-      z
-        .string()
-        .max(30, { message: "Dish name must be less than 30 characters" })
-    ),
-    description: z.optional(
-      z
-        .string()
-        .max(100, { message: "Description must be less than 100 characters" })
-    ),
-    price: z.optional(z.number().min(1)),
-    category: z.optional(z.enum(dishCategory.enumValues)),
-    tags: z.optional(z.string().array()),
-    isAvailable: z.optional(z.boolean()),
-    discountPercentage: z.optional(
+  name: z
+    .string()
+    .max(30, { message: "Dish name must be less than 30 characters" })
+    .optional(),
+  description: z
+    .string()
+    .max(100, { message: "Description must be less than 100 characters" })
+    .optional(),
+  category: z.enum(dishCategory.enumValues).optional(),
+  tags: z
+    .preprocess((val) => {
+      if (typeof val === "string") {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return [];
+        }
+      }
+      return val;
+    }, z.array(z.string()).optional())
+    .optional(),
+  isVeg: z
+    .preprocess((val) => val === "true" || val === true, z.boolean())
+    .optional(),
+  isAvailable: z
+    .preprocess(
+      (val) => (val === undefined ? undefined : val === "true" || val === true),
+      z.boolean().optional()
+    )
+    .optional(),
+  price: z
+    .preprocess(
+      (val) => (val !== undefined ? Number(val) : undefined),
+      z.number().min(1)
+    )
+    .optional(),
+  discountPercentage: z
+    .preprocess(
+      (val) => (val !== undefined ? Number(val) : undefined),
       z
         .number()
-        .min(0, { message: "DIscount percentage should atleast be 0" })
+        .min(0, { message: "Discount percentage should at least be 0" })
         .max(100, { message: "Discount margins cannot exceed 100%" })
-    ),
-    preparationTime: z.optional(z.number().int().min(0)),
-  }),
+        .optional()
+    )
+    .optional(),
+  preparationTime: z
+    .preprocess(
+      (val) => (val !== undefined ? parseInt(val as string) : undefined),
+      z.number().int().min(1).optional()
+    )
+    .optional(),
 });
 
 export const getAllMenuItems = async (req: Request, res: Response) => {
   const decoded = res.locals.decoded;
-  const renewAccessToken = res.locals.renewAccessToken;
-  const renewRefreshToken = res.locals.renewRefreshToken;
-  const aud = decoded.aud;
-
   const slug = req.params.slug;
 
   const [dbFetchError, fetchResults] = await catchDrizzzzzleError(
@@ -87,60 +133,45 @@ export const getAllMenuItems = async (req: Request, res: Response) => {
       .where(eq(restaurant.slug, slug))
   );
 
-  const requestAbondoned = hasDrizzzzzleError(
-    dbFetchError,
-    fetchResults,
-    res,
-    null,
-    null
-  );
-
-  if (!requestAbondoned) {
-    return;
+  if (dbFetchError) {
+    res.status(500).send(dbFetchError.message);
   }
 
-  renewTokens(renewAccessToken, renewRefreshToken, res, decoded.id, aud);
+  if (!fetchResults || fetchResults.length === 0) {
+    res.status(200).json({ dishes: [] });
+    return;
+  }
+  const menu = fetchResults.map((menuItem) => createClientDish(menuItem.dish));
 
-  const menu = requestAbondoned.map((menuItem) => menuItem.dish);
-
-  res.status(200).json({ menu });
+  res.status(200).json({ dishes: menu });
   return;
 };
 
 export const getSingleMenuItem = async (req: Request, res: Response) => {
   const decoded = res.locals.decoded;
-  const renewAccessToken = res.locals.renewAccessToken;
-  const renewRefreshToken = res.locals.renewRefreshToken;
-  const aud = decoded.aud;
 
   const dishId = req.params.dishId;
 
   const [fetchDishError, fetchedDish] = await catchDrizzzzzleError(
     db.select({ dish }).from(dish).where(eq(dish.id, dishId))
   );
+  if (fetchDishError) {
+    res.status(500).send(fetchDishError.message);
+  }
 
-  const requestAbondoned = hasDrizzzzzleError(
-    fetchDishError,
-    fetchedDish,
-    res,
-    null,
-    null
-  );
-
-  if (!requestAbondoned) {
+  if (!fetchedDish || fetchedDish.length === 0) {
+    res.status(400).json({ error: "No such dish available." });
     return;
   }
 
-  renewTokens(renewAccessToken, renewRefreshToken, res, decoded.id, aud);
-  res.status(200).json({ dish: requestAbondoned[0] });
+  const clientDish = createClientDish(fetchedDish[0].dish);
+
+  res.status(200).json({ dish: clientDish });
   return;
 };
 
 export const deleteMenuItem = async (req: Request, res: Response) => {
   const decoded = res.locals.decoded;
-  const renewAccessToken = res.locals.renewAccessToken;
-  const renewRefreshToken = res.locals.renewRefreshToken;
-  const aud = decoded.aud;
 
   const result = dishIdSchema.safeParse(req.body);
 
@@ -177,8 +208,9 @@ export const deleteMenuItem = async (req: Request, res: Response) => {
       .send("Action Denied. User doesn't have permisssion for this");
     return;
   }
+
   const [fetchDishError, fetchedDish] = await catchDrizzzzzleError(
-    db.delete(dish).where(eq(dish.id, result.data.dishId)).returning()
+    db.select().from(dish).where(eq(dish.id, result.data.dishId))
   );
 
   const fetchDishRequestAbondoned = hasDrizzzzzleError(
@@ -188,21 +220,44 @@ export const deleteMenuItem = async (req: Request, res: Response) => {
     null,
     null
   );
+
   if (!fetchDishRequestAbondoned) {
     return;
   }
+  const error = await deleteS3Image(
+    fetchDishRequestAbondoned[0].imageUrl,
+    "qrbites-dish-image"
+  );
 
-  res.status(204);
+  if (error) {
+    res.status(500).send("Server Error. Couldn't delete dish");
+  }
+
+  const [deleteDishError, deletedDish] = await catchDrizzzzzleError(
+    db.delete(dish).where(eq(dish.id, result.data.dishId)).returning()
+  );
+
+  const deleteDishRequestAbondoned = hasDrizzzzzleError(
+    deleteDishError,
+    deletedDish,
+    res,
+    null,
+    null
+  );
+
+  if (!deleteDishRequestAbondoned) {
+    return;
+  }
+
+  res.status(200).json({ dishId: deleteDishRequestAbondoned[0].id });
 };
 
 export const addItemToMenu = async (req: Request, res: Response) => {
   const decoded = res.locals.decoded;
-  const renewAccessToken = res.locals.renewAccessToken;
-  const renewRefreshToken = res.locals.renewRefreshToken;
 
   const result = addDishSchema.safeParse(req.body);
   if (!result.success) {
-    const formattedError = result.error.format()._errors.join(". ");
+    const formattedError = result.error.errors.join(". ");
     res.status(400).send(formattedError);
     return;
   }
@@ -265,18 +320,17 @@ export const addItemToMenu = async (req: Request, res: Response) => {
       .insert(dish)
       .values({
         id: dishId,
-        category: result.data.dish.category,
-        description: result.data.dish.description,
+        category: result.data.category,
+        description: result.data.description,
         imageUrl: getImageUrl(fileName, "qrbites-dish-image"),
-        name: result.data.dish.name,
-        price: result.data.dish.price,
-        discountPercentage: result.data.dish.discountPercentage,
-        isAvailable: result.data.dish.isAvailable
-          ? result.data.dish.isAvailable
-          : true,
-        preparationTime: result.data.dish.preparationTime,
+        name: result.data.name,
+        isVeg: result.data.isVeg,
+        price: result.data.price,
+        discountPercentage: result.data.discountPercentage,
+        isAvailable: result.data.isAvailable ? result.data.isAvailable : true,
+        preparationTime: result.data.preparationTime,
         restaurantId: requestAbondoned[0].restaurant.id,
-        tags: result.data.dish.tags,
+        tags: result.data.tags,
       })
       .returning()
   );
@@ -293,8 +347,6 @@ export const addItemToMenu = async (req: Request, res: Response) => {
     return;
   }
 
-  renewTokens(renewAccessToken, renewRefreshToken, res, decoded.id, "business");
-
   const newDish = createClientDish(insertRequestAbondoned[0]);
 
   res.status(201).json({ dish: newDish });
@@ -302,8 +354,6 @@ export const addItemToMenu = async (req: Request, res: Response) => {
 
 export const updateMenuItem = async (req: Request, res: Response) => {
   const decoded = res.locals.decoded;
-  const renewAccessToken = res.locals.renewAccessToken;
-  const renewRefreshToken = res.locals.renewRefreshToken;
 
   const result = updateDishSchema.safeParse(req.body);
   if (!result.success) {
@@ -346,29 +396,72 @@ export const updateMenuItem = async (req: Request, res: Response) => {
     return;
   }
 
-  const existingDish = result.data.dish;
+  const existingDish = result.data;
+  const dishId = req.params.dishId;
+
+  const [fetchDishError, fetchedDish] = await catchDrizzzzzleError(
+    db.select().from(dish).where(eq(dish.id, dishId))
+  );
+
+  const fetchDishRequestAbondoned = hasDrizzzzzleError(
+    fetchDishError,
+    fetchedDish,
+    res,
+    null,
+    null
+  );
+
+  if (!fetchDishRequestAbondoned) {
+    return;
+  }
+
+  if (req.file) {
+    const fileUploadError = await uploadImageToS3(
+      req.file,
+      fetchDishRequestAbondoned[0].imageUrl,
+      "qrbites-dish-image"
+    );
+    if (fileUploadError) {
+      logger.error({}, fileUploadError.message);
+      res.status(500).send("Failed to upload dish. Please try again later");
+      return;
+    }
+  }
+
   const [updateDishError, updatedDish] = await catchDrizzzzzleError(
     db
       .update(dish)
       .set({
-        ...(existingDish.name && { name: existingDish.name }),
-        ...(existingDish.description && {
-          description: existingDish.description,
-        }),
-        ...(existingDish.price && { price: existingDish.price }),
-        ...(existingDish.category && { category: existingDish.category }),
-        ...(existingDish.tags && { tags: existingDish.tags }),
-        ...(existingDish.isAvailable && {
-          isAvailable: existingDish.isAvailable,
-        }),
-        ...(existingDish.discountPercentage && {
-          discountPercentage: existingDish.discountPercentage,
-        }),
-        ...(existingDish.preparationTime && {
-          preparationTime: existingDish.preparationTime,
-        }),
+        ...(existingDish.name !== undefined &&
+          existingDish.name !== null && { name: existingDish.name }),
+        ...(existingDish.description !== undefined &&
+          existingDish.description !== null && {
+            description: existingDish.description,
+          }),
+        ...(existingDish.isVeg !== undefined &&
+          existingDish.isVeg !== null && { isVeg: existingDish.isVeg }),
+        ...(existingDish.price !== undefined &&
+          existingDish.price !== null && { price: existingDish.price }),
+        ...(existingDish.category !== undefined &&
+          existingDish.category !== null && {
+            category: existingDish.category,
+          }),
+        ...(existingDish.tags !== undefined &&
+          existingDish.tags !== null && { tags: existingDish.tags }),
+        ...(existingDish.isAvailable !== undefined &&
+          existingDish.isAvailable !== null && {
+            isAvailable: existingDish.isAvailable,
+          }),
+        ...(existingDish.discountPercentage !== undefined &&
+          existingDish.discountPercentage !== null && {
+            discountPercentage: existingDish.discountPercentage,
+          }),
+        ...(existingDish.preparationTime !== undefined &&
+          existingDish.preparationTime !== null && {
+            preparationTime: existingDish.preparationTime,
+          }),
       })
-      .where(eq(dish.id, existingDish.id))
+      .where(eq(dish.id, dishId))
       .returning()
   );
 
@@ -381,30 +474,6 @@ export const updateMenuItem = async (req: Request, res: Response) => {
   );
 
   if (!updateRequestAbondoned) {
-    return;
-  }
-  if (!req.file) {
-    res.status(201).json({ dish: updateRequestAbondoned[0] });
-    return;
-  }
-
-  const baseUrl = "https://qrbites-dish-image.s3.ap-south-1.amazonaws.com/";
-  const imageKey = updateRequestAbondoned[0].imageUrl.startsWith(baseUrl)
-    ? updateRequestAbondoned[0].imageUrl.slice(baseUrl.length)
-    : null;
-  if (!imageKey) {
-    res.status(400).send("Image not found");
-    return;
-  }
-  const fileUploadResult = await uploadImageToS3(
-    req.file,
-    imageKey,
-    "qrbites-dish-image"
-  );
-
-  if (fileUploadResult) {
-    logger.error({}, fileUploadResult.message);
-    res.status(500).send("Failed to update dish. Please try again later");
     return;
   }
 

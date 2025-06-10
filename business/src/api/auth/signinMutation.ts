@@ -2,7 +2,6 @@ import { ErrorToast } from "@/components/custom/Toast";
 import { useMutation } from "@tanstack/react-query";
 import { UseNavigateResult } from "@tanstack/react-router";
 import React from "react";
-import { toast } from "sonner";
 
 export const signinMagicLink = (
   emailInputRef: React.RefObject<HTMLInputElement | null>,

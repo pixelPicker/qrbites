@@ -12,8 +12,9 @@ declare global {
     serialNo: number;
     name: string;
     email: string;
-    phoneNumber: string[] | null;
+    phoneNumber: string | null;
     logoUrl: string | null;
+    slug: string;
     openingTime: string | null;
     closingTime: string | null;
   }

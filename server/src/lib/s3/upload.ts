@@ -1,7 +1,7 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3 } from "../../config/s3.js";
 
-type BucketNames = "qrbites-restaurant-logo" | "qrbites-dish-image";
+export type BucketNames = "qrbites-restaurant-logo" | "qrbites-dish-image";
 
 export function getImageUrl(fileName: string, bucketName: BucketNames) {
   return `https://${bucketName}.s3.ap-south-1.amazonaws.com/${fileName}`;
@@ -19,6 +19,7 @@ export async function uploadImageToS3(
         Bucket: bucketName,
         ContentType: upload.mimetype,
         Body: upload.buffer,
+        ACL: "public-read",
       })
     );
     return null;

@@ -7,7 +7,7 @@ import { IoQrCodeOutline } from "react-icons/io5";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import React, { useEffect, useRef, useState } from "react";
 import SpacingDiv from "@/components/custom/SpacingDiv";
-import { signupMagicLink, signupGoogle } from "@/api/mutations/signupMutation";
+import { signupMagicLink, signupGoogle } from "@/api/auth/signupMutation";
 import { Toaster } from "sonner";
 import { RequiredRedAsterisk } from "@/components/custom/RequiredAsterisk";
 
@@ -123,16 +123,13 @@ function Form({ handleIsFetching }: ChildProps) {
     const emailInput = emailInputRef.current;
 
     if (usernameInput.value.length < 3 || usernameInput.value.length > 30) {
-      console.log("Username must be between 3 to 30 characters");
       setUsernameError("Username must be between 3 to 30 characters");
       return false;
     }
     if (emailInput.value.length === 0) {
-      console.log("Email is required");
       setEmailError("Email is required");
       return false;
     } else if (!emailInput.checkValidity()) {
-      console.log("Invalid email format");
       setEmailError("Invalid email format");
       return false;
     }

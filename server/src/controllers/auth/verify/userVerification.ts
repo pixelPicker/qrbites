@@ -8,7 +8,7 @@ import { staff, users } from "../../../db/schema.js";
 import { hasDrizzzzzleError } from "../../../util/checkError.js";
 import { eq } from "drizzle-orm";
 import { createClientStaff, createClientUser } from "../../../util/createClient.js";
-import { renewTokens } from "../../../util/renewTokens.js";
+import { renewTokens } from "../../../middleware/auth/renewTokens.js";
 
 export const clientVerification = async (req: Request, res: Response) => {
   const decoded = res.locals.decoded as JwtPayload;
@@ -60,8 +60,6 @@ export const clientVerification = async (req: Request, res: Response) => {
 
 export const staffVerification = async (req: Request, res: Response) => {
   const decoded = res.locals.decoded as JwtPayload;
-  const renewAccessToken = res.locals.renewAccessToken as boolean;
-  const renewRefreshToken = res.locals.renewRefreshToken as boolean;
   
   const aud = decoded.aud;
   if(aud !== "business") {
@@ -82,8 +80,6 @@ export const staffVerification = async (req: Request, res: Response) => {
   if (!fetchedUser) {
     return;
   }
-
-  renewTokens(renewAccessToken, renewRefreshToken, res, fetchedUser[0].id, aud)
 
   const clientUser = createClientStaff(fetchedUser[0]);
   res.status(200).json({ user: clientUser });

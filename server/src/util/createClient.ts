@@ -51,9 +51,12 @@ export const createClientDish = (dish: ClientDish): ClientDish => {
     name: dish.name,
     description: dish.description,
     price: dish.price,
+
     category: dish.category,
     tags: dish.tags,
+    isVeg: dish.isVeg,
     imageUrl: dish.imageUrl,
+    
     isAvailable: dish.isAvailable,
     discountPercentage: dish.discountPercentage,
     preparationTime: dish.preparationTime,

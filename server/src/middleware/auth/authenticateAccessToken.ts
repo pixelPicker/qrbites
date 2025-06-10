@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { access } from "fs";
 import jwt, { JwtPayload, VerifyErrors } from "jsonwebtoken";
 
 export const authenticateAccessToken = (
@@ -20,7 +19,8 @@ export const authenticateAccessToken = (
   }
 
   if (accessToken === undefined) {
-    return next();
+    next();
+    return;
   }
 
   jwt.verify(
@@ -28,16 +28,17 @@ export const authenticateAccessToken = (
     process.env.JWT_SECRET!,
     (err: VerifyErrors | null, decoded: JwtPayload | string | undefined) => {
       if (err || !decoded || typeof decoded === "string") {
-        return res
-          .status(400)
-          .json({
-            message: "Failed to authenticate user",
-            error: err ?? "couldn't decode the jwt",
-            accessToken: accessToken,
-          });
+        res.status(400).json({
+          message: "Failed to authenticate user",
+          error: err ?? "couldn't decode the jwt",
+          accessToken: accessToken,
+        });
+        return;
       }
+      
       res.locals.decoded = decoded;
-      return next();
+      next();
+      return;
     }
   );
 };
