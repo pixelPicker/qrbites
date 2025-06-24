@@ -20,7 +20,7 @@ const emailWorker = new Worker(
     const data = job.data;
     await sendMail(
       data.email,
-      verificationEmailTemplate(data.verificationToken, data.email, data.party)
+      verificationEmailTemplate(data.verificationToken, data.email, data.party, data.type)
     );
   },
   {connection: connection}

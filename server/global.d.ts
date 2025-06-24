@@ -19,6 +19,10 @@ declare global {
     update_settings: boolean;
     delete_menu_item: boolean;
     update_order_status: boolean;
+    view_tables: boolean;
+    add_table: boolean;
+    edit_table: boolean;
+    delete_table: boolean;
   }
   interface User {
     id: string;
@@ -81,6 +85,19 @@ declare global {
     verificationToken: string;
     email: string;
     party: "client" | "business";
+    type: "signup" | "signin";
+  }
+  interface RestaurantTable {
+    id: string;
+    serialNo: number;
+    restaurantId: string;
+    qrcode: string;
+    backupCode: string;
+    isOccupied: boolean | null;
+    createdAt: string;
+    updatedAt: string;
+    name: string | null;
+    capacity: number | null;
   }
 }
 export {};

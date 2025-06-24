@@ -24,6 +24,12 @@ export const clientEmailResend = async (req: Request, res: Response) => {
     return;
   }
 
+  const authType = req.params.type;
+  if (!(authType === "signup" || authType === "signin")) {
+    res.status(400).send("Error while reading auth status");
+    return;
+  }
+
   const [emailCheckError, existingUser] = await catchDrizzzzzleError(
     db.select().from(users).where(eq(users.email, result.data.email))
   );
@@ -80,6 +86,7 @@ export const clientEmailResend = async (req: Request, res: Response) => {
     email: updateRequestAborted[0].email,
     party: "client",
     verificationToken: verificationToken,
+    type: authType,
   });
 
   res.status(201).json({ message: "Email resent" });
@@ -93,6 +100,12 @@ export const businessEmailResend = async (req: Request, res: Response) => {
       .map((error) => error.message)
       .join(". ");
     res.status(400).json({ error: formattedErrors });
+    return;
+  }
+
+  const authType = req.params.type;
+  if (!(authType === "signup" || authType === "signin")) {
+    res.status(400).send("Error while reading auth status");
     return;
   }
 
@@ -149,10 +162,11 @@ export const businessEmailResend = async (req: Request, res: Response) => {
   }
 
   addEmailToQueue({
-      email: updateRequestAborted[0].email,
-      party: "business",
-      verificationToken: verificationToken,
-    });
+    email: updateRequestAborted[0].email,
+    party: "business",
+    verificationToken: verificationToken,
+    type: authType,
+  });
 
   res.status(201).json({ message: "Email resent" });
 };

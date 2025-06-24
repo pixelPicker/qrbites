@@ -9,6 +9,8 @@ type ClientRestaurant = Omit<Restaurant, "createdAt" | "updatedAt">;
 
 type ClientDish = Omit<Dish, "restaurantId" | "createdAt" | "updatedAt">;
 
+type ClientTable = Omit<RestaurantTable,  "createdAt" | "updatedAt" | "restaurantId">
+
 export const createClientStaff = (staff: Staff): ClientStaff => {
   return {
     id: staff.id,
@@ -62,3 +64,17 @@ export const createClientDish = (dish: ClientDish): ClientDish => {
     preparationTime: dish.preparationTime,
   };
 };
+
+export const createClientTable = (
+  table: ClientTable
+): ClientTable => {
+  return {
+    backupCode: table.backupCode,
+    capacity: table.capacity,
+    id: table.id,
+    isOccupied: table.isOccupied,
+    name: table.name,
+    qrcode: table.qrcode,
+    serialNo: table.serialNo,
+  }
+}

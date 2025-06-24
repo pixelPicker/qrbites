@@ -15,8 +15,8 @@ export const signinMagicLink = (
     },
     onSuccess: () => {
       navigate({
-        to: "/auth/verify-email/$email",
-        params: { email: emailInputRef.current!.value },
+        to: "/auth/verify-email/$email/$type",
+        params: { email: emailInputRef.current!.value, type: "signin" },
       });
     },
   });

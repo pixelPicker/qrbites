@@ -52,20 +52,38 @@ function RouteComponent() {
   if (data) {
     return (
       <div className="!py-3 font-Aeonik-Regular !px-6 flex flex-col h-full">
-        <Head></Head>
         <Menu></Menu>
       </div>
     );
   }
 }
 
-function Head() {
-  const { currentFilter, setCurrentFilter } = useMenuStore((s) => s);
+function Menu() {
+  const { menu, currentFilter, setCurrentFilter } = useMenuStore((s) => s);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredMenu = menu.filter((dish) => {
+    const matchesCategory =
+      currentFilter === "all" || dish.category === currentFilter;
+    const matchesSearch = dish.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <>
       <section className="flex justify-between items-center !py-3">
-        <SearchBar></SearchBar>
+        <input
+          type="text"
+          name="searchMenu"
+          id="searchMenu"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search"
+          className="font-Aeonik-Regular flex-1 g-light-green/50 placeholder:font-Aeonik-Regular outline-none border-[2px] border-hmm-black/50 focus-within:border-hmm-black/70 bg-woo-white/50 !px-3 flex justify-between items-center !py-2 rounded-lg w-full max-w-[300px]"
+        />
       </section>
       <section className="!pt-2 !pb-6 flex justify-between items-center">
         <ul className="flex items-center gap-3">
@@ -95,62 +113,33 @@ function Head() {
           </Link>
         </div>
       </section>
+      <section className="flex-1 @container font-Aeonik-Regular overflow-auto">
+        {filteredMenu.length <= 0 ? (
+          <div className="text-center text-gray-500 pt-10">No dishes found</div>
+        ) : (
+          <div className="grid grid-cols-1 @min-lg:grid-cols-2 @min-3xl:grid-cols-3 @min-4xl:grid-cols-4 gap-4">
+            {filteredMenu.map((dish) => (
+              <DishCard key={dish.id} dish={dish} />
+            ))}
+          </div>
+        )}
+      </section>
     </>
   );
 }
 
-function SearchBar() {
-  return (
-    <input
-      type="text"
-      name="searchMenu"
-      id="searchMenu"
-      placeholder="Search"
-      className="font-Aeonik-Regular flex-1 g-light-green/50 placeholder:font-Aeonik-Regular outline-none border-[2px] border-hmm-black/50 focus-within:border-hmm-black/70 bg-woo-white/50 !px-3 flex justify-between items-center !py-2 rounded-lg w-full max-w-[300px]"
-    />
-  );
-}
-function Menu() {
-  const { menu, currentFilter } = useMenuStore((s) => s);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const filteredMenu = menu.filter((dish) => {
-    const matchesCategory =
-      currentFilter === "all" || dish.category === currentFilter;
-    const matchesSearch = dish.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    
-    return matchesCategory && matchesSearch;
-  });
-
-  return (
-    <section className="flex-1 @container font-Aeonik-Regular overflow-auto">
-      {filteredMenu.length <= 0 ? (
-        <div className="text-center text-gray-500 pt-10">No dishes found</div>
-      ) : (
-        <div className="grid grid-cols-1 @min-lg:grid-cols-2 @min-3xl:grid-cols-3 @min-4xl:grid-cols-4 gap-4">
-          {filteredMenu.map((dish) => (
-            <DishCard key={dish.id} dish={dish} />
-          ))}
-        </div>
-      )}
-    </section>
-  );
-}
-
 function DishCard({ dish }: { dish: Dish }) {
-  const {deleteDish} = useMenuStore();
+  const { deleteDish } = useMenuStore();
   const deleteMutation = deleteDishMutation(deleteDish);
   const navigate = useNavigate();
 
   const handleDishDelete = (dishId: Dish["id"]) => {
-    deleteMutation.mutate({dishId})
-  }
+    deleteMutation.mutate({ dishId });
+  };
 
   const handleUpdateDish = (dishId: Dish["id"]) => {
-    navigate({to: "/admin/$dishId/update", params: {dishId}})
-  }
+    navigate({ to: "/admin/$dishId/update", params: { dishId } });
+  };
 
   return (
     <div className="border rounded-xl relative shadow-sm bg-white hover:shadow-md transition-all duration-200">
@@ -170,12 +159,22 @@ function DishCard({ dish }: { dish: Dish }) {
             {dish.name.replace(dish.name[0], dish.name[0].toUpperCase())}
           </h3>
           <p className="flex gap-2 items-end">
-            <span className={dish.discountPercentage ? "line-through text-gray-400 text-sm" : ""}>
+            <span
+              className={
+                dish.discountPercentage
+                  ? "line-through text-gray-400 text-sm"
+                  : ""
+              }
+            >
               ₹{dish.price.toFixed(2)}
             </span>
             {dish.discountPercentage !== 0 && dish.discountPercentage && (
               <span>
-                ₹{(dish.price - (dish.price * dish.discountPercentage) / 100).toFixed(2)}
+                ₹
+                {(
+                  dish.price -
+                  (dish.price * dish.discountPercentage) / 100
+                ).toFixed(2)}
               </span>
             )}
           </p>
@@ -209,8 +208,12 @@ function DishCard({ dish }: { dish: Dish }) {
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="min-w-52 font-Aeonik-Regular">
-              <DropdownMenuItem onClick={() => handleUpdateDish(dish.id)}>Edit</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleDishDelete(dish.id)}>Delete</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleUpdateDish(dish.id)}>
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleDishDelete(dish.id)}>
+                Delete
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

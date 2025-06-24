@@ -7,14 +7,17 @@ import { SpinningCircles } from "react-loading-icons";
 import { Toaster } from "sonner";
 import SpacingDiv from "@/components/custom/SpacingDiv";
 
-export const Route = createFileRoute("/auth/verify-email/$email")({
+export const Route = createFileRoute("/auth/verify-email/$email/$type")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { email } = Route.useParams();
+  const { email, type } = Route.useParams();
   const [isFetching, setIsFetching] = useState(false);
-  const resendMutation = emailResendMutation(email);
+  const resendMutation = emailResendMutation(
+    email,
+    type as "signin" | "signup"
+  );
   const { user } = useAuthStoreContext((state) => state);
   const navigate = useNavigate();
   const [resendTime, setResendTime] = useState(60);
@@ -47,7 +50,7 @@ function RouteComponent() {
 
   const handleEmailResend = () => {
     resendMutation.mutate();
-  }
+  };
 
   return (
     <>
@@ -78,7 +81,7 @@ function RouteComponent() {
               >
                 Resend Email
               </button>
-              &nbsp;{(resendTime > 0) ? `in ${resendTime} seconds.` : ``}
+              &nbsp;{resendTime > 0 ? `in ${resendTime} seconds.` : ``}
             </span>
           </section>
         </div>

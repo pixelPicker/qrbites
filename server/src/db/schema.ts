@@ -76,7 +76,7 @@ export const restaurantTable = pgTable("restaurant_table", {
 	isOccupied: boolean("is_occupied").default(false),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-	name: varchar({ length: 30 }),
+	name: varchar({ length: 30 }).notNull(),
 	capacity: smallint(),
 }, (table) => [
 	foreignKey({

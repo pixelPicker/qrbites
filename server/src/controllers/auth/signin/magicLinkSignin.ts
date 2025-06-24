@@ -8,6 +8,8 @@ import { hasDrizzzzzleError } from "../../../util/checkError.js";
 import { createJwtToken } from "../../../util/authTokens.js";
 import logger from "../../../config/logger.js";
 import { addEmailToQueue } from "../../../queue/email/email.queue.js";
+import { setAuthCookies } from "../../../util/setResponseCookies.js";
+import { createClientStaff, createClientUser } from "../../../util/createClient.js";
 
 const schema = z.object({
   email: z.string().email(),
@@ -82,9 +84,53 @@ export const clientMagicLinkSignin = async (req: Request, res: Response) => {
       email: updatedUserResult[0].email,
       party: "client",
       verificationToken: verificationToken,
+      type: "signin"
     });
 
   res.status(201).json({ message: "Verification email has been sent" });
+};
+
+
+export const clientMagicLinkSigninCallback = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const userId = res.locals.userId as string;
+
+  const [findUserError, data] = await catchDrizzzzzleError(
+    db.select().from(users).where(eq(users.id, userId))
+  );
+  if (findUserError) {
+    res.status(500).json({ error: "Please try again later" });
+    return;
+  }
+  if (data === undefined) {
+    res.status(401).json({ error: "Data not found" });
+  }
+
+  const [updatedUserError, user] = await catchDrizzzzzleError(
+    db
+      .update(users)
+      .set({
+        emailVerificationToken: null,
+        isVerified: true,
+      })
+      .where(eq(users.id, userId))
+      .returning()
+  );
+  if (updatedUserError || user === undefined) {
+    res.status(500).json({ error: "Please try again later" });
+    return;
+  }
+
+  const accessToken = createJwtToken(user[0].id, "client", "access");
+  const refreshToken = createJwtToken(user[0].id, "client", "refresh");
+
+  setAuthCookies(accessToken, refreshToken, res);
+
+  const clientUser = createClientUser(user[0]);
+
+  res.status(202).json({ user: clientUser });
 };
 
 export const businessMagicLinkSignin = async (req: Request, res: Response) => {
@@ -156,7 +202,57 @@ export const businessMagicLinkSignin = async (req: Request, res: Response) => {
     email: updatedUserResult[0].email,
     party: "business",
     verificationToken: verificationToken,
+    type: "signin"
   });
 
   res.status(201).json({ message: "Verification email has been sent" });
+};
+
+export const businessMagicLinkSigninCallback = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const staffId = res.locals.userId as string;
+
+  const [findUserError, data] = await catchDrizzzzzleError(
+    db.select().from(staff).where(eq(staff.id, staffId))
+  );
+  if (findUserError) {
+    res.status(500).json({ error: "Please try again later" });
+    return;
+  }
+  if (data === undefined) {
+    res.status(401).json({ error: "Data not found" });
+  }
+
+  const [updatedUserError, user] = await catchDrizzzzzleError(
+    db
+      .update(staff)
+      .set({
+        emailVerificationToken: null,
+        isVerified: true,
+      })
+      .where(eq(staff.id, staffId))
+      .returning()
+  );
+
+  if (updatedUserError || user === undefined) {
+    res.status(500).json({ error: "Please try again later" });
+    return;
+  }
+
+  if (user[0].role !== "admin") {
+    res.status(401).json({ error: "Only admins can use the signup portal" });
+    return;
+  }
+
+  const accessToken = createJwtToken(user[0].id, "business", "access");
+  const refreshToken = createJwtToken(user[0].id, "business", "refresh");
+
+  setAuthCookies(accessToken, refreshToken, res);
+
+  const clientStaff = createClientStaff(user[0]);
+
+  res.status(202).json({ user: clientStaff });
+  return;
 };

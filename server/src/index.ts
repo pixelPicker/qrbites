@@ -4,23 +4,24 @@ import "./middleware/auth/passportGoogle.js";
 import express from "express";
 import cors from "cors";
 import { pinoHttp } from "pino-http";
-import googleAuth from "./routes/auth/googleAuth.js";
-import magicLinkAuth from "./routes/auth/magicLink.js";
 import passport from "passport";
-import getRestaurant from "./routes/restaurant/getRestaurant.js";
-import verifyUser from "./routes/auth/verifyUser.js";
 import cookieParser from "cookie-parser";
 import "./queue/email/email.worker.js";
-import createRestaurant from "./routes/restaurant/createRestaurant.js"
+
+
+import getRestaurant from "./routes/restaurant/getRestaurant.js";
+import googleAuth from "./routes/auth/googleAuth.js";
+import magicLinkAuth from "./routes/auth/magicLink.js";
+import verifyUser from "./routes/auth/verifyUser.js";
+import createRestaurant from "./routes/restaurant/createRestaurant.js";
 import menuRoutes from "./routes/menu/menu.js";
+import tableRoutes from "./routes/tables/tables.js";
 
 
 const app = express();
 
-
 // logger init for api endpoints
 app.use(pinoHttp({ logger }));
-
 
 // middleware init
 app.use(
@@ -29,13 +30,13 @@ app.use(
     credentials: true,
   })
 );
-app.use(cookieParser())
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(passport.initialize());
- 
 
-// routes 
+// routes
+
 app.get("/", (req, res) => {
   res.status(200).end("Welcome to qrbites. Have a great day");
 });
@@ -45,7 +46,7 @@ app.use(getRestaurant);
 app.use(verifyUser);
 app.use(createRestaurant);
 app.use(menuRoutes);
-
+app.use(tableRoutes);
 
 // startup
 const PORT = process.env.PORT || 3000;

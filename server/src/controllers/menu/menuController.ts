@@ -14,7 +14,7 @@ import { db } from "../../config/db.js";
 import { hasDrizzzzzleError } from "../../util/checkError.js";
 import { renewTokens } from "../../middleware/auth/renewTokens.js";
 import path from "path";
-import { getImageUrl, uploadImageToS3 } from "../../lib/s3/upload.js";
+import { getImageUrl, uploadMulterImageToS3 } from "../../lib/s3/upload.js";
 import logger from "../../config/logger.js";
 import { createClientDish } from "../../util/createClient.js";
 import { deleteS3Image } from "../../lib/s3/delete.js";
@@ -300,10 +300,10 @@ export const addItemToMenu = async (req: Request, res: Response) => {
       .send("Action Denied. User doesn't have permisssion for this");
     return;
   }
-
+ 
   const fileName = uuidv4() + path.extname(req.file.originalname);
 
-  const fileUploadError = await uploadImageToS3(
+  const fileUploadError = await uploadMulterImageToS3(
     req.file,
     fileName,
     "qrbites-dish-image"
@@ -416,7 +416,7 @@ export const updateMenuItem = async (req: Request, res: Response) => {
   }
 
   if (req.file) {
-    const fileUploadError = await uploadImageToS3(
+    const fileUploadError = await uploadMulterImageToS3(
       req.file,
       fetchDishRequestAbondoned[0].imageUrl,
       "qrbites-dish-image"

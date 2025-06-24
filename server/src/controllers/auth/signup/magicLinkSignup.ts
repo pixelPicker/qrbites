@@ -121,6 +121,7 @@ export const clientMagicLinkSignup: RequestHandler = async (
     email: user[0].email,
     party: "client",
     verificationToken: verificationToken,
+    type: "signup",
   });
 
   res.status(202).json({
@@ -258,6 +259,7 @@ export const businessMagicLinkSignup = async (req: Request, res: Response) => {
     email: user[0].email,
     party: "business",
     verificationToken: verificationToken,
+    type: "signup",
   });
 
   res.status(202).json({
@@ -266,7 +268,7 @@ export const businessMagicLinkSignup = async (req: Request, res: Response) => {
   return;
 };
 
-export const businessMagicLinkSignupCallback: RequestHandler = async (
+export const businessMagicLinkSignupCallback = async (
   req: Request,
   res: Response
 ): Promise<void> => {
@@ -342,9 +344,7 @@ export const businessMagicLinkSignupCallback: RequestHandler = async (
 
   setAuthCookies(accessToken, refreshToken, res);
 
-  const clientStaff = createClientStaff(
-    user[0]
-  );
+  const clientStaff = createClientStaff(user[0]);
 
   res.status(202).json({ user: clientStaff });
   return;

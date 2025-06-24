@@ -7,6 +7,7 @@ import { toast } from "sonner";
 interface emailVerificationParams {
   email: string;
   token: string;
+  type: "signup" | "signin";
 }
 
 export const Route = createFileRoute("/auth/confirm-page")({
@@ -16,19 +17,17 @@ export const Route = createFileRoute("/auth/confirm-page")({
     return {
       email: (search.email as string) || "",
       token: (search.token as string) || "",
+      type: (search.type as "signup" | "signin") || "",
     };
   },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { email, token } = Route.useSearch();
+  const { email, token, type } = Route.useSearch();
   const { setUser, user } = useAuthStoreContext((state) => state);
   const navigate = useNavigate();
-  const verificationQuery = emailVerificationQuery(
-    email,
-    token,
-  );
+  const verificationQuery = emailVerificationQuery(email, token, type);
 
   if (user) {
     navigate({ to: "/" });
@@ -78,6 +77,10 @@ function RouteComponent() {
   if (verificationQuery.isSuccess) {
     toast("Successfully verified");
     setUser(verificationQuery.data.user);
-    navigate({ to: "/restaurant/create" });
+    if(type === "signin") {
+      navigate({ to: "/admin" });
+    } else {
+      navigate({ to: "/restaurant/create" });
+    }
   }
 }
